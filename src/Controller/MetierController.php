@@ -3,12 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Metier;
-use App\Form\MetierType;
 use App\Repository\MetierRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/metier")
@@ -18,31 +17,24 @@ class MetierController extends AbstractController
     /**
      * @Route("/", name="app_metier_index", methods={"GET"})
      */
-    public function index(MetierRepository $metierRepository): Response
+    public function index(MetierRepository $metierRepository): JsonResponse
     {
-        return $this->render('metier/index.html.twig', [
-            'metiers' => $metierRepository->findAll(),
-        ]);
+        return $this->json($metierRepository->findAll());
     }
 
     /**
      * @Route("/new", name="app_metier_new", methods={"GET", "POST"})
      */
-    public function new(Request $request, MetierRepository $metierRepository): Response
+    public function new(Request $request, MetierRepository $metierRepository): JsonResponse
     {
         $metier = new Metier();
-        $form = $this->createForm(MetierType::class, $metier);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $metierRepository->add($metier);
-            return $this->redirectToRoute('app_metier_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('metier/new.html.twig', [
-            'metier' => $metier,
-            'form' => $form,
-        ]);
+        $metier->setCode($request->request->get("code"));
+        $metier->setNom($request->request->get("nom"));
+        $metier->setDescriptionC($request->request->get("description_c"));
+        $metier->setDescriptionL($request->request->get("description_l"));
+        $metier->setCreation(new \DateTime('@'.strtotime('now')));
+        $metierRepository->add($metier);
+        return $this->json($metierRepository->findAll());
     }
 
     /**
@@ -58,31 +50,25 @@ class MetierController extends AbstractController
     /**
      * @Route("/{id}/edit", name="app_metier_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Metier $metier, MetierRepository $metierRepository): Response
+    public function edit(Request $request, Metier $metier, MetierRepository $metierRepository): JsonResponse
     {
-        $form = $this->createForm(MetierType::class, $metier);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $metierRepository->add($metier);
-            return $this->redirectToRoute('app_metier_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('metier/edit.html.twig', [
-            'metier' => $metier,
-            'form' => $form,
-        ]);
+        $metier->setCode($request->request->get("code"));
+        $metier->setNom($request->request->get("nom"));
+        $metier->setDescriptionC($request->request->get("descriptionC"));
+        $metier->setDescriptionL($request->request->get("descriptionL"));
+        $metierRepository->add($metier);
+        return $this->json($metierRepository->findAll());
     }
 
     /**
      * @Route("/{id}", name="app_metier_delete", methods={"POST"})
      */
-    public function delete(Request $request, Metier $metier, MetierRepository $metierRepository): Response
+    public function delete(Request $request, Metier $metier, MetierRepository $metierRepository): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$metier->getId(), $request->request->get('_token'))) {
+        // if ($this->isCsrfTokenValid('delete'.$metier->getId(), $request->request->get('_token'))) {
             $metierRepository->remove($metier);
-        }
+        //}
 
-        return $this->redirectToRoute('app_metier_index', [], Response::HTTP_SEE_OTHER);
+        return $this->json($metierRepository->findAll());
     }
 }
