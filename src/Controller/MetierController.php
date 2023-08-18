@@ -54,8 +54,8 @@ class MetierController extends AbstractController
     {
         $metier->setCode($request->request->get("code"));
         $metier->setNom($request->request->get("nom"));
-        $metier->setDescriptionC($request->request->get("descriptionC"));
-        $metier->setDescriptionL($request->request->get("descriptionL"));
+        $metier->setDescriptionC($request->request->get("description_c"));
+        $metier->setDescriptionL($request->request->get("description_l"));
         $metierRepository->add($metier);
         return $this->json($metierRepository->findAll());
     }
