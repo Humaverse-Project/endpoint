@@ -27,7 +27,11 @@ class CompetanceController extends AbstractController
     public function new(Request $request, CompetanceRepository $competanceRepository): JsonResponse
     {
         $competance = new Competance();
-        
+        $competance->setCode($request->request->get("code"));
+        $competance->setClass($request->request->get("class"));
+        $competance->setDescriptionC($request->request->get("description_c"));
+        $competance->setDescriptionL($request->request->get("description_l"));
+        $competance->setCreation(new \DateTime('@'.strtotime('now')));
         $competanceRepository->add($competance);
         return $this->json($competanceRepository->findAll());
     }
@@ -45,6 +49,10 @@ class CompetanceController extends AbstractController
      */
     public function edit(Request $request, Competance $competance, CompetanceRepository $competanceRepository): JsonResponse
     {
+        $competance->setCode($request->request->get("code"));
+        $competance->setClass($request->request->get("class"));
+        $competance->setDescriptionC($request->request->get("description_c"));
+        $competance->setDescriptionL($request->request->get("description_l"));
         $competanceRepository->add($competance);
         return $this->json($competanceRepository->findAll());
     }
