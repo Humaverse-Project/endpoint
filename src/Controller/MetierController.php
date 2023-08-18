@@ -38,16 +38,6 @@ class MetierController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_metier_show", methods={"GET"})
-     */
-    public function show(Metier $metier): Response
-    {
-        return $this->render('metier/show.html.twig', [
-            'metier' => $metier,
-        ]);
-    }
-
-    /**
      * @Route("/{id}/edit", name="app_metier_edit", methods={"GET", "POST"})
      */
     public function edit(Request $request, Metier $metier, MetierRepository $metierRepository): JsonResponse

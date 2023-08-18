@@ -37,14 +37,6 @@ class CompetanceController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_competance_show", methods={"GET"})
-     */
-    public function show(Competance $competance): JsonResponse
-    {
-        return $this->json($competanceRepository->findAll());
-    }
-
-    /**
      * @Route("/{id}/edit", name="app_competance_edit", methods={"GET", "POST"})
      */
     public function edit(Request $request, Competance $competance, CompetanceRepository $competanceRepository): JsonResponse

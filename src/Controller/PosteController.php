@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\Poste;
 use App\Form\PosteType;
 use App\Repository\PosteRepository;
+use App\Repository\CompetanceRepository;
+use App\Repository\MetierRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/poste")
@@ -18,71 +20,68 @@ class PosteController extends AbstractController
     /**
      * @Route("/", name="app_poste_index", methods={"GET"})
      */
-    public function index(PosteRepository $posteRepository): Response
+    public function index(PosteRepository $posteRepository): JsonResponse
     {
-        return $this->render('poste/index.html.twig', [
-            'postes' => $posteRepository->findAll(),
-        ]);
+        return $this->json($posteRepository->findAll());
     }
 
     /**
      * @Route("/new", name="app_poste_new", methods={"GET", "POST"})
      */
-    public function new(Request $request, PosteRepository $posteRepository): Response
-    {
+    public function new(
+        Request $request,
+        PosteRepository $posteRepository,
+        CompetanceRepository $competanceRepository,
+        MetierRepository $metierRepository
+    ): JsonResponse {
         $poste = new Poste();
-        $form = $this->createForm(PosteType::class, $poste);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $posteRepository->add($poste);
-            return $this->redirectToRoute('app_poste_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('poste/new.html.twig', [
-            'poste' => $poste,
-            'form' => $form,
-        ]);
+        $competance = $competanceRepository->find((int)$request->request->get("competance_id"));
+        $poste->setCompetance($competance);
+        $metier = $metierRepository->find((int)$request->request->get("metier_id"));
+        $poste->setMetier($metier);
+        $poste->setCreation(new \DateTime('@'.strtotime('now')));
+        $poste->setNiveauCompetance($request->request->get("niveau_competance"));
+        $posteRepository->add($poste);
+        return $this->json($poste);
     }
 
     /**
-     * @Route("/{id}", name="app_poste_show", methods={"GET"})
+     * @Route("/test", name="app_poste_test", methods={"GET", "POST"})
      */
-    public function show(Poste $poste): Response
-    {
-        return $this->render('poste/show.html.twig', [
-            'poste' => $poste,
-        ]);
+    public function test(
+        Request $request,
+        CompetanceRepository $competanceRepository
+    ): JsonResponse {
+        dd($competanceRepository->find($request->query->get("competance_id")));
+        return $this->json($competanceRepository->find($request->query->get("competance_id")));
     }
 
     /**
      * @Route("/{id}/edit", name="app_poste_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Poste $poste, PosteRepository $posteRepository): Response
+    public function edit(
+        Request $request,
+        Poste $poste,
+        PosteRepository $posteRepository,
+        CompetanceRepository $competanceRepository,
+        MetierRepository $metierRepository
+    ): JsonResponse
     {
-        $form = $this->createForm(PosteType::class, $poste);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $posteRepository->add($poste);
-            return $this->redirectToRoute('app_poste_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('poste/edit.html.twig', [
-            'poste' => $poste,
-            'form' => $form,
-        ]);
+        $competance = $competanceRepository->find((int)$request->request->get("competance_id"));
+        $poste->setCompetance($competance);
+        $metier = $metierRepository->find((int)$request->request->get("metier_id"));
+        $poste->setMetier($metier);
+        $poste->setNiveauCompetance($request->request->get("niveau_competance"));
+        $posteRepository->add($poste);
+        return $this->json($posteRepository->findAll());
     }
 
     /**
      * @Route("/{id}", name="app_poste_delete", methods={"POST"})
      */
-    public function delete(Request $request, Poste $poste, PosteRepository $posteRepository): Response
+    public function delete(Request $request, Poste $poste, PosteRepository $posteRepository): JsonResponse
     {
-        if ($this->isCsrfTokenValid('delete'.$poste->getId(), $request->request->get('_token'))) {
-            $posteRepository->remove($poste);
-        }
-
-        return $this->redirectToRoute('app_poste_index', [], Response::HTTP_SEE_OTHER);
+        $posteRepository->remove($poste);
+        return $this->json($posteRepository->findAll());
     }
 }
