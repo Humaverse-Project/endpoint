@@ -77,6 +77,18 @@ class PosteController extends AbstractController
     }
 
     /**
+     * @Route("/GetListByMetierID/{id}", name="app_poste_get_by_metier_id", methods={"GET"})
+     */
+    public function GetListByMetierID(Request $request,
+    PosteRepository $posteRepository,
+    MetierRepository $metierRepository,
+    int $id) : JsonResponse {
+        $metier = $metierRepository->find($id);
+        $data = $posteRepository->findBy(["metier"=>$metier]);
+        return $this->json($data);
+    }
+
+    /**
      * @Route("/{id}", name="app_poste_delete", methods={"POST"})
      */
     public function delete(Request $request, Poste $poste, PosteRepository $posteRepository): JsonResponse
