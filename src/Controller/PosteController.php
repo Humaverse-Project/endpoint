@@ -84,6 +84,14 @@ class PosteController extends AbstractController
         $data = $posteRepository->findBy(["competance"=>$competance]);
         return $this->json($data);
     }
+    /**
+     * @Route("/SearchListPostByCompetanceCode", name="app_poste_get_by_competance_code", methods={"POST"})
+     */
+    public function SearchListPostByCompetanceCode(Request $request, PosteRepository $posteRepository, CompetanceRepository $competanceRepository) : JsonResponse {
+        $competance = $competanceRepository->findBy(["code"=>$request->request->get("code")]);
+        $data = $posteRepository->findBy(["competance"=>$competance]);
+        return $this->json($data);
+    }
 
     /**
      * @Route("/GetListByMetierID/{id}", name="app_poste_get_by_metier_id", methods={"GET"})
