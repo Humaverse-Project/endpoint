@@ -47,14 +47,20 @@ class PropositionPoste
     private $type;
 
     /**
-     * @ORM\OneToMany(targetEntity=VoteProposition::class, mappedBy="proposition")
+     * @ORM\ManyToOne(targetEntity=Proposition::class, inversedBy="propositionPostes")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $votePropositions;
+    private $proposition;
 
-    public function __construct()
-    {
-        $this->votePropositions = new ArrayCollection();
-    }
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $ex_id;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $niveau_competance;
 
     public function getId(): ?int
     {
@@ -121,32 +127,33 @@ class PropositionPoste
         return $this;
     }
 
-    /**
-     * @return Collection<int, VoteProposition>
-     */
-    public function getVotePropositions(): Collection
+    public function setProposition(?Proposition $proposition): self
     {
-        return $this->votePropositions;
-    }
-
-    public function addVoteProposition(VoteProposition $voteProposition): self
-    {
-        if (!$this->votePropositions->contains($voteProposition)) {
-            $this->votePropositions[] = $voteProposition;
-            $voteProposition->setProposition($this);
-        }
+        $this->proposition = $proposition;
 
         return $this;
     }
 
-    public function removeVoteProposition(VoteProposition $voteProposition): self
+    public function getExId(): ?int
     {
-        if ($this->votePropositions->removeElement($voteProposition)) {
-            // set the owning side to null (unless already changed)
-            if ($voteProposition->getProposition() === $this) {
-                $voteProposition->setProposition(null);
-            }
-        }
+        return $this->ex_id;
+    }
+
+    public function setExId(?int $ex_id): self
+    {
+        $this->ex_id = $ex_id;
+
+        return $this;
+    }
+
+    public function getNiveauCompetance(): ?int
+    {
+        return $this->niveau_competance;
+    }
+
+    public function setNiveauCompetance(int $niveau_competance): self
+    {
+        $this->niveau_competance = $niveau_competance;
 
         return $this;
     }

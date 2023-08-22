@@ -18,12 +18,6 @@ class VoteProposition
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=PropositionPoste::class, inversedBy="votePropositions")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $proposition;
-
-    /**
      * @ORM\Column(type="integer")
      */
     private $votepar;
@@ -38,21 +32,15 @@ class VoteProposition
      */
     private $value;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Proposition::class, inversedBy="votePropositions")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $proposition;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getProposition(): ?PropositionPoste
-    {
-        return $this->proposition;
-    }
-
-    public function setProposition(?PropositionPoste $proposition): self
-    {
-        $this->proposition = $proposition;
-
-        return $this;
     }
 
     public function getVotepar(): ?int
@@ -87,6 +75,18 @@ class VoteProposition
     public function setValue(bool $value): self
     {
         $this->value = $value;
+
+        return $this;
+    }
+
+    public function getProposition(): ?Proposition
+    {
+        return $this->proposition;
+    }
+
+    public function setProposition(?Proposition $proposition): self
+    {
+        $this->proposition = $proposition;
 
         return $this;
     }
