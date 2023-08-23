@@ -42,11 +42,11 @@ class PropositionController extends AbstractController
         $typeCompetance = $request->request->all("type");
         $exidlist = $request->request->all("id");
         $propositionRepository->add($proposition);
+        $metier = $metierRepository->find((int)$listdatametierid[0]);
         for ($i=0; $i < count($listdatacompetanceid); $i++) { 
             $competance = $competanceRepository->find((int)$listdatacompetanceid[$i]);
             $poste = new PropositionPoste();
             $poste->setCompetance($competance);
-            $metier = $metierRepository->find((int)$listdatametierid[0]);
             $poste->setMetier($metier);
             $poste->setCreatedby(1);
             $poste->setCreation(new \DateTime('@'.strtotime('now')));
@@ -62,12 +62,37 @@ class PropositionController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="app_proposition_edit", methods={"GET", "POST"})
+     * @Route("/update", name="app_proposition_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Proposition $proposition, PropositionRepository $propositionRepository): JsonResponse
+    public function update(Request $request, PropositionRepository $propositionRepository,
+    CompetanceRepository $competanceRepository,
+    MetierRepository $metierRepository, PropositionPosteRepository $propositionPosteRepository): JsonResponse
     {
-            $propositionRepository->add($proposition);
-            return $this->json($propositionRepository->findAll());
+        $id_propositionlist = $request->request->all("id_proposition");
+        $proposition = $propositionRepository->find((int)$id_propositionlist[0]);
+        $listdatacompetanceid = $request->request->all("competanceid");
+        $listdatametierid = $request->request->all("metier_id");
+        $niveauCompetance = $request->request->all("niveauCompetance");
+        $typeCompetance = $request->request->all("type2");
+        $metier = $metierRepository->find((int)$listdatametierid[0]);
+        $exidlist = $request->request->all("id");
+        for ($i=0; $i < count($listdatacompetanceid); $i++) { 
+            $competance = $competanceRepository->find((int)$listdatacompetanceid[$i]);
+            if($typeCompetance[$i] == "new"){
+                $poste = new PropositionPoste();
+                $poste->setCreatedby(1);
+                $poste->setCreation(new \DateTime('@'.strtotime('now')));
+                $poste->setMetier($metier);
+                $poste->setType($typeCompetance[$i]);
+                $poste->setProposition($proposition);
+            } else {
+                $poste = $propositionPosteRepository->find((int)$exidlist[$i]);
+            }
+            $poste->setCompetance($competance);
+            $poste->setNiveauCompetance((int)$niveauCompetance[$i]);
+            $propositionPosteRepository->add($poste);
+        }
+        return $this->json($propositionRepository->findAll());
     }
 
     /**
