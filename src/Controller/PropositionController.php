@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\CompetanceRepository;
 use App\Repository\MetierRepository;
+use App\Entity\VoteProposition;
+use App\Repository\VotePropositionRepository;
 
 /**
  * @Route("/proposition")
@@ -91,6 +93,47 @@ class PropositionController extends AbstractController
             $poste->setCompetance($competance);
             $poste->setNiveauCompetance((int)$niveauCompetance[$i]);
             $propositionPosteRepository->add($poste);
+        }
+        return $this->json($propositionRepository->findAll());
+    }
+
+    /**
+     * @Route("/vote", name="app_proposition_vote_save", methods={"POST"})
+     */
+    public function vote(Request $request, PropositionRepository $propositionRepository, VotePropositionRepository $votePropositionRepository): JsonResponse
+    {
+        $votevalue = $request->request->get("value");
+        $vote_id = $request->request->get("vote_id");
+        if ($vote_id === "null") {
+            $vote_id = NULL;
+        } else {
+            $vote_id = (int)$vote_id;
+        }
+        if ($votevalue === "null") {
+            $votevalue = NULL;
+        } elseif ($votevalue === "true") {
+            $votevalue = true;
+        } elseif ($votevalue === "false") {
+            $votevalue = false;
+        }
+        $propositionid = $request->request->get("id");
+        $proposition = $propositionRepository->find((int)$propositionid);
+        if (is_null($vote_id) and !is_null($votevalue)) {
+            $vote = new VoteProposition();
+            $vote->setCreation(new \DateTime('@'.strtotime('now')));
+            $vote->setProposition($proposition);
+            $vote->setValue($votevalue);
+            $vote->setVotepar(1);
+            $votePropositionRepository->add($vote);
+        } elseif (!is_null($vote_id) and !is_null($votevalue)) {
+            $vote = $votePropositionRepository->find((int)$vote_id);
+            $vote->setValue($votevalue);
+            $votePropositionRepository->add($vote);
+        } elseif (is_null($votevalue) and !is_null($vote_id)) {
+            $vote = $votePropositionRepository->find((int)$vote_id);
+            $votePropositionRepository->remove($vote);
+        } else {
+            dd($votevalue, $vote_id);
         }
         return $this->json($propositionRepository->findAll());
     }

@@ -79,11 +79,6 @@ class VoteProposition
         return $this;
     }
 
-    public function getProposition(): ?Proposition
-    {
-        return $this->proposition;
-    }
-
     public function setProposition(?Proposition $proposition): self
     {
         $this->proposition = $proposition;
