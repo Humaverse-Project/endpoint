@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\FormationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,142 +20,193 @@ class Formation
     private $id;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="string", length=100)
      */
-    private $nom;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $categorie;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $type;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $creation;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $proprietaire;
+    private $formation_titre;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $tarif;
+    private $formation_type;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="array", nullable=true)
      */
-    private $durrer;
+    private $formation_prerequis = [];
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToMany(targetEntity=BriquesCompetences::class)
      */
-    private $genre;
+    private $formation_competences;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $formation_duree;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $formation_description;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $formation_cout;
+
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private $created_at;
+
+    /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private $updated_at;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Personne::class)
+     */
+    private $formation_formateur;
+
+    public function __construct()
+    {
+        $this->formation_competences = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getFormationTitre(): ?string
     {
-        return $this->nom;
+        return $this->formation_titre;
     }
 
-    public function setNom(string $nom): self
+    public function setFormationTitre(string $formation_titre): self
     {
-        $this->nom = $nom;
+        $this->formation_titre = $formation_titre;
 
         return $this;
     }
 
-    public function getCategorie(): ?string
+    public function getFormationType(): ?int
     {
-        return $this->categorie;
+        return $this->formation_type;
     }
 
-    public function setCategorie(string $categorie): self
+    public function setFormationType(int $formation_type): self
     {
-        $this->categorie = $categorie;
+        $this->formation_type = $formation_type;
 
         return $this;
     }
 
-    public function getType(): ?string
+    public function getFormationPrerequis(): ?array
     {
-        return $this->type;
+        return $this->formation_prerequis;
     }
 
-    public function setType(string $type): self
+    public function setFormationPrerequis(?array $formation_prerequis): self
     {
-        $this->type = $type;
+        $this->formation_prerequis = $formation_prerequis;
 
         return $this;
     }
 
-    public function getCreation(): ?\DateTimeInterface
+    /**
+     * @return Collection<int, BriquesCompetences>
+     */
+    public function getFormationCompetences(): Collection
     {
-        return $this->creation;
+        return $this->formation_competences;
     }
 
-    public function setCreation(\DateTimeInterface $creation): self
+    public function addFormationCompetence(BriquesCompetences $formationCompetence): self
     {
-        $this->creation = $creation;
+        if (!$this->formation_competences->contains($formationCompetence)) {
+            $this->formation_competences[] = $formationCompetence;
+        }
 
         return $this;
     }
 
-    public function getProprietaire(): ?string
+    public function removeFormationCompetence(BriquesCompetences $formationCompetence): self
     {
-        return $this->proprietaire;
-    }
-
-    public function setProprietaire(string $proprietaire): self
-    {
-        $this->proprietaire = $proprietaire;
+        $this->formation_competences->removeElement($formationCompetence);
 
         return $this;
     }
 
-    public function getTarif(): ?int
+    public function getFormationDuree(): ?float
     {
-        return $this->tarif;
+        return $this->formation_duree;
     }
 
-    public function setTarif(int $tarif): self
+    public function setFormationDuree(float $formation_duree): self
     {
-        $this->tarif = $tarif;
+        $this->formation_duree = $formation_duree;
 
         return $this;
     }
 
-    public function getDurrer(): ?int
+    public function getFormationDescription(): ?string
     {
-        return $this->durrer;
+        return $this->formation_description;
     }
 
-    public function setDurrer(?int $durrer): self
+    public function setFormationDescription(?string $formation_description): self
     {
-        $this->durrer = $durrer;
+        $this->formation_description = $formation_description;
 
         return $this;
     }
 
-    public function getGenre(): ?string
+    public function getFormationCout(): ?int
     {
-        return $this->genre;
+        return $this->formation_cout;
     }
 
-    public function setGenre(string $genre): self
+    public function setFormationCout(int $formation_cout): self
     {
-        $this->genre = $genre;
+        $this->formation_cout = $formation_cout;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): self
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getFormationFormateur(): ?Personne
+    {
+        return $this->formation_formateur;
+    }
+
+    public function setFormationFormateur(?Personne $formation_formateur): self
+    {
+        $this->formation_formateur = $formation_formateur;
 
         return $this;
     }
