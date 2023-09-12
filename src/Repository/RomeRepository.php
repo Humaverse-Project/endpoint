@@ -47,6 +47,40 @@ class RomeRepository extends ServiceEntityRepository
         }
     }
 
+    public function batchinsert(array $data) {
+        $batchSize = 20;
+        for ($i = 0; $i < count($data); ++$i) {
+            $rome = new Rome;
+            $rome->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $rome->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $rome->setRomeAccesMetier($data[$i]["accesEmploi"]);
+            $rome->setRomeCoderome($data[$i]["code"]);
+            $rome->setRomeTitre($data[$i]["libelle"]);
+            $rome->setRomeDefinition($data[$i]["definition"]);
+            $this->_em->persist($rome);
+            if (($i % $batchSize) === 0) {
+                $this->_em->flush();
+                $this->_em->clear();
+            }
+        }
+        $this->_em->flush(); // Persist objects that did not make up an entire batch
+        $this->_em->clear();
+    }
+
+    public function batchupdate(array $data) {
+        $batchSize = 20;
+        for ($i = 0; $i < count($data); ++$i) {
+            $rome = $data[$i];
+            $this->_em->persist($rome);
+            if (($i % $batchSize) === 0) {
+                $this->_em->flush();
+                $this->_em->clear();
+            }
+        }
+        $this->_em->flush(); // Persist objects that did not make up an entire batch
+        $this->_em->clear();
+    }
+    
     // /**
     //  * @return Rome[] Returns an array of Rome objects
     //  */
