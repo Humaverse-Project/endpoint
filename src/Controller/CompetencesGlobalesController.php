@@ -102,6 +102,7 @@ class CompetencesGlobalesController extends AbstractController
             $listcompetanceglobal = $competencesGlobalesRepository->findAll();
             $i = $i+1;
         }
+        dd("terminer");
     }
     /**
      * @Route("/{id}", name="app_competences_globales_show", methods={"GET"})

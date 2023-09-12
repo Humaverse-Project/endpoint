@@ -88,7 +88,6 @@ class BriquesCompetencesController extends AbstractController
                 ];
             }, $data["groupesSavoirs"]);
             $result = array_merge($resultats, $resultatssavoir);
-            $briqtoinsertinsert = [];
             for ($i=0; $i < count($result); $i++) { 
                 $key = $result[$i];
                 $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
@@ -97,18 +96,21 @@ class BriquesCompetencesController extends AbstractController
                 if (!empty($comptanceglobal)) {
                     rsort($comptanceglobal);
                     $listcompetance = $result[$i]["competancelist"];
-                    for ($m=0; $m < count($listcompetance); $m++) { 
-                        $briqtoinsertinsert[] = [
-                            "rome"=> $metier,
-                            "comp"=> $comptanceglobal[0],
-                            "brq_comp_titre"=> $listcompetance[$m]["libelle"],
-                        ];
+                    for ($m=0; $m < count($listcompetance); $m++) {
+                        $brique = new BriquesCompetences;
+                        $brique->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                        $brique->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                        $brique->setRome($metier);
+                        $brique->setCompGb($comptanceglobal[0]);
+                        $brique->setBrqCompTitre($listcompetance[$m]["libelle"]);
+                        $briquesCompetencesRepository->add($brique);
                     }
                 }
             }
-            $briquesCompetencesRepository->batchinsert($briqtoinsertinsert);
+            //dd($briqtoinsertinsert);
             $i = $i+1;
         }
+        dd($briquesCompetencesRepository->findAll());
     }
 
     /**

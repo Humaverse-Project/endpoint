@@ -60,7 +60,6 @@ class RomeController extends AbstractController
                 $romeRepository->add($rome[0]);
             }
         }
-        // $romeRepository->batchupdate($romeupdated);
         $romelist = $romeRepository->findAll();
         dd($romelist);
     }

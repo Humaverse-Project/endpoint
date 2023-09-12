@@ -39,6 +39,11 @@ class ContextesTravail
      */
     private $briquesContextes;
 
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $ctx_trv_categorie;
+
     public function __construct()
     {
         $this->briquesContextes = new ArrayCollection();
@@ -111,6 +116,18 @@ class ContextesTravail
                 $briquesContexte->setContexte(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCtxTrvCategorie(): ?string
+    {
+        return $this->ctx_trv_categorie;
+    }
+
+    public function setCtxTrvCategorie(?string $ctx_trv_categorie): self
+    {
+        $this->ctx_trv_categorie = $ctx_trv_categorie;
 
         return $this;
     }
