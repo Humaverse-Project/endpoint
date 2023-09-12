@@ -12,7 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\RomeRepository;
 use App\Repository\CompetencesGlobalesRepository;
 use App\Services\ApiRequest\RomeInterface;
-use App\Services\Helpers\ArrayHelpers;
 /**
  * @Route("/briques/competences")
  */
@@ -51,7 +50,7 @@ class BriquesCompetencesController extends AbstractController
     /**
      * @Route("/synchrome", name="app_briques_competences_synchrome", methods={"GET", "POST"})
      */
-    public function synchrome(RomeRepository $romeRepository, RomeInterface $romeInterface, CompetencesGlobalesRepository $competencesGlobalesRepository, ArrayHelpers $arrayHelpers)
+    public function synchrome(RomeRepository $romeRepository, RomeInterface $romeInterface, CompetencesGlobalesRepository $competencesGlobalesRepository, BriquesCompetencesRepository $briquesCompetencesRepository)
     {
         set_time_limit(500);
         $scope = "nomenclatureRome api_rome-fiches-metiersv1";
@@ -77,29 +76,37 @@ class BriquesCompetencesController extends AbstractController
                 }
                 return [
                     "comp_gb_categorie" => $typecomp,
-                    "comp_gb_titre"=> $valeur["enjeu"]["libelle"]
+                    "comp_gb_titre"=> $valeur["enjeu"]["libelle"],
+                    "competancelist"=> $valeur["competences"]
                 ];
             }, $data["groupesCompetencesMobilisees"]);
             $resultatssavoir = array_map(function($valeur) {
                 return [
                     "comp_gb_categorie" => "SAVOIRS",
-                    "comp_gb_titre"=> $valeur["categorieSavoirs"]["libelle"]
+                    "comp_gb_titre"=> $valeur["categorieSavoirs"]["libelle"],
+                    "competancelist"=> $valeur["savoirs"]
                 ];
             }, $data["groupesSavoirs"]);
             $result = array_merge($resultats, $resultatssavoir);
-            $result = $arrayHelpers->arrayunique($result);
-            $competanceglbtoinsert = [];
+            $briqtoinsertinsert = [];
             for ($i=0; $i < count($result); $i++) { 
                 $key = $result[$i];
                 $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
                     return ($entiteRome->getCompGbCategorie() === $key["comp_gb_categorie"] and $entiteRome->getCompGbTitre() === $key["comp_gb_titre"]);
                 });
-                if (empty($comptanceglobal)) {
-                    $competanceglbtoinsert[] = $key;
+                if (!empty($comptanceglobal)) {
+                    rsort($comptanceglobal);
+                    $listcompetance = $result[$i]["competancelist"];
+                    for ($m=0; $m < count($listcompetance); $m++) { 
+                        $briqtoinsertinsert[] = [
+                            "rome"=> $metier,
+                            "comp"=> $comptanceglobal[0],
+                            "brq_comp_titre"=> $listcompetance[$m]["libelle"],
+                        ];
+                    }
                 }
             }
-            $competencesGlobalesRepository->batchinsert($competanceglbtoinsert);
-            $listcompetanceglobal = $competencesGlobalesRepository->findAll();
+            $briquesCompetencesRepository->batchinsert($briqtoinsertinsert);
             $i = $i+1;
         }
     }

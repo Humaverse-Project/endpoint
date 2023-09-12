@@ -40,13 +40,13 @@ class Rome
     private $rome_acces_metier;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Rome::class,cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity=Rome::class)
      * @ORM\JoinTable(name="rome_proches")
      */
     private $fiches_rome_proches;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Rome::class,cascade={"persist"})
+     * @ORM\ManyToMany(targetEntity=Rome::class)
      * @ORM\JoinTable(name="rome_evolution")
      */
     private $fiches_rome_evolution;

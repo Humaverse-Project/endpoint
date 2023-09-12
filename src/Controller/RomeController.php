@@ -34,18 +34,9 @@ class RomeController extends AbstractController
         $access = $romeInterface->authetification($scope);
         $list = $romeInterface->getFicheMetierData($access["access_token"]);
         $romeRepository->batchinsert($list);
-        // for ($i=0; $i < count($list); $i++) {
-        //     if ($i % 100 == 0) {
-        //         $access = $romeInterface->authetification($scope);
-        //     }
-        //     sleep(1);
-        //     $data = $romeInterface->getFicheMetierDatainformation($access["access_token"], $list[$i]["code"]);
-        //     dd($data);
-        // }
         $romelist = $romeRepository->findAll();
         $projectDir = $this->getParameter('kernel.project_dir')."/public/unix_rubrique_mobilite_v451_utf8.csv";
         $result = $romeInterface->getFicheMetierDataLier($projectDir);
-        $romeupdated = [];
         foreach ($result as $key => $value) {
             $rome = array_filter($romelist, function ($entiteRome) use ($key) {
                 return $entiteRome->getRomeCoderome() === $key;
@@ -66,10 +57,10 @@ class RomeController extends AbstractController
                 }
             }
             if (!empty($rome)){
-                $romeupdated[] = $rome[0];
+                $romeRepository->add($rome[0]);
             }
         }
-        $romeRepository->batchupdate($romeupdated);
+        // $romeRepository->batchupdate($romeupdated);
         $romelist = $romeRepository->findAll();
         dd($romelist);
     }
