@@ -30,7 +30,7 @@ class RomeController extends AbstractController
      */
     public function synchrome(RomeRepository $romeRepository, RomeInterface $romeInterface)
     {
-        $scope = "api_rome-metiersv1 api_rome-competencesv1 nomenclatureRome api_rome-fiches-metiersv1";
+        $scope = "api_rome-metiersv1 nomenclatureRome";
         $access = $romeInterface->authetification($scope);
         $list = $romeInterface->getFicheMetierData($access["access_token"]);
         $romeRepository->batchinsert($list);

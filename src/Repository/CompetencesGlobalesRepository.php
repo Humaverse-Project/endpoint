@@ -47,6 +47,24 @@ class CompetencesGlobalesRepository extends ServiceEntityRepository
         }
     }
 
+    public function batchinsert(array $data) {
+        $batchSize = 20;
+        for ($i = 0; $i < count($data); ++$i) {
+            $rome = new CompetencesGlobales;
+            $rome->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $rome->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $rome->setCompGbCategorie($data[$i]["comp_gb_categorie"]);
+            $rome->setCompGbTitre($data[$i]["comp_gb_titre"]);
+            $this->_em->persist($rome);
+            if (($i % $batchSize) === 0) {
+                $this->_em->flush();
+                $this->_em->clear();
+            }
+        }
+        $this->_em->flush(); // Persist objects that did not make up an entire batch
+        $this->_em->clear();
+    }
+
     // /**
     //  * @return CompetencesGlobales[] Returns an array of CompetencesGlobales objects
     //  */
