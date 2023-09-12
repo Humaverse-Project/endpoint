@@ -70,6 +70,21 @@ class RomeInterface
         $content = $response->toArray();
         return $content;
     }
+    public function getFicheMetierMetierDatainformation(string $access, string $code): array
+    {
+        $response = $this->client->request(
+            'GET',
+            'https://api.pole-emploi.io/partenaire/rome-metiers/v1/metiers/metier/'.$code,
+            [
+                "headers"=> [
+                    "Authorization"=> 'Bearer '.$access
+                ]
+            ],
+        );
+        $content = $response->getContent();
+        $content = $response->toArray();
+        return $content;
+    }
     public function getFicheMetierDataLier(string $projectDir): array
     {
 

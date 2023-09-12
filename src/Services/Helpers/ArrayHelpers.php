@@ -22,4 +22,5 @@ class ArrayHelpers
         // $resultats contiendra le tableau sans doublons complets
         return $resultats;
     }
+    
 }
