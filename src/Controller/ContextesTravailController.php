@@ -44,50 +44,52 @@ class ContextesTravailController extends AbstractController
             }
             sleep(1);
             $data = $romeInterface->getFicheMetierMetierDatainformation($access["access_token"], $metier->getRomeCoderome());
-            $resultats = array_map(function($valeur) {
-                $data = new ContextesTravail;
-                $data->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                $data->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                $data->setCtxTrvTitre($valeur["categorie"]);
-                return $data;
-            }, $data["contextesTravail"]);
-            $uniqueValues = [];
-            $resultats = array_values(array_filter($resultats, function ($item) use (&$uniqueValues) {
-                if (!isset($uniqueValues[$item->getCtxTrvTitre()])) {
-                    $uniqueValues[$item->getCtxTrvTitre()] = true;
-                    return true;
+            if (!empty($data)) {
+                $resultats = array_map(function($valeur) {
+                    $data = new ContextesTravail;
+                    $data->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $data->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $data->setCtxTrvTitre($valeur["categorie"]);
+                    return $data;
+                }, $data["contextesTravail"]);
+                $uniqueValues = [];
+                $resultats = array_values(array_filter($resultats, function ($item) use (&$uniqueValues) {
+                    if (!isset($uniqueValues[$item->getCtxTrvTitre()])) {
+                        $uniqueValues[$item->getCtxTrvTitre()] = true;
+                        return true;
+                    }
+                    return false;
+                }));
+                for ($i=0; $i < count($resultats); $i++) {
+                    $key = $resultats[$i];
+                    $contextr = array_filter($contextesTravail, function ($entiteRome) use ($key) {
+                        return ($entiteRome->getCtxTrvTitre() === $key->getCtxTrvTitre());
+                    });
+                    if (empty($contextr)) {
+                        $contextesTravailRepository->add($key);
+                    }
                 }
-                return false;
-            }));
-            for ($i=0; $i < count($resultats); $i++) {
-                $key = $resultats[$i];
-                $contextr = array_filter($contextesTravail, function ($entiteRome) use ($key) {
-                    return ($entiteRome->getCtxTrvTitre() === $key->getCtxTrvTitre());
-                });
-                if (empty($contextr)) {
-                    $contextesTravailRepository->add($key);
+                $contextesTravail = $contextesTravailRepository->findAll();
+                $resultatsbrique = array_map(function($valeur) use ($metier, $contextesTravail) {
+                    $contextr = array_filter($contextesTravail, function ($entiteRome) use ($valeur) {
+                        return ($entiteRome->getCtxTrvTitre() === $valeur["categorie"]);
+                    });
+                    $data = new BriquesContexte;
+                    $data->setBrqCtxTitre($valeur["libelle"]);
+                    $data->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $data->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $data->setRome($metier);
+                    if (!empty($contextr)) {
+                        rsort($contextr);
+                        $data->setContexte($contextr[0]);
+                    }
+                    return $data;
+                }, $data["contextesTravail"]);
+                for ($i=0; $i < count($resultatsbrique); $i++) { 
+                    $briquesContexteRepository->add($resultatsbrique[$i]);
                 }
+                $i = $i+1;
             }
-            $contextesTravail = $contextesTravailRepository->findAll();
-            $resultatsbrique = array_map(function($valeur) use ($metier, $contextesTravail) {
-                $contextr = array_filter($contextesTravail, function ($entiteRome) use ($valeur) {
-                    return ($entiteRome->getCtxTrvTitre() === $valeur["categorie"]);
-                });
-                $data = new BriquesContexte;
-                $data->setBrqCtxTitre($valeur["libelle"]);
-                $data->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                $data->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                $data->setRome($metier);
-                if (!empty($contextr)) {
-                    rsort($contextr);
-                    $data->setContexte($contextr[0]);
-                }
-                return $data;
-            }, $data["contextesTravail"]);
-            for ($i=0; $i < count($resultatsbrique); $i++) { 
-                $briquesContexteRepository->add($resultatsbrique[$i]);
-            }
-            $i = $i+1;
         }
         dd("terminer");
     }

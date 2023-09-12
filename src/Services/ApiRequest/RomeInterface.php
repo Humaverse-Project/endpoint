@@ -34,10 +34,13 @@ class RomeInterface
                 ]
             ]
         );
-        $content = $response->getContent();
-        $content = $response->toArray();
-
-        return $content;
+        try {
+            $content = $response->getContent();
+            $content = $response->toArray();
+            return $content;
+        } catch (\Throwable $th) {
+            dd("erreur connexion pôle emplois");
+        }
     }
 
     public function getFicheMetierData(string $access): array
@@ -51,9 +54,13 @@ class RomeInterface
                 ]
             ],
         );
-        $content = $response->getContent();
-        $content = $response->toArray();
-        return $content;
+        try {
+            $content = $response->getContent();
+            $content = $response->toArray();
+            return $content;
+        } catch (\Throwable $th) {
+            return [];
+        }
     }
     public function getFicheMetierDatainformation(string $access, string $code): array
     {
@@ -66,9 +73,15 @@ class RomeInterface
                 ]
             ],
         );
-        $content = $response->getContent();
-        $content = $response->toArray();
-        return $content;
+        try {
+            $content = $response->getContent();
+            $content = $response->toArray();
+            return $content;
+        } catch (\Throwable $th) {
+            return [];
+        }
+        
+        
     }
     public function getFicheMetierMetierDatainformation(string $access, string $code): array
     {
@@ -81,9 +94,13 @@ class RomeInterface
                 ]
             ],
         );
-        $content = $response->getContent();
-        $content = $response->toArray();
-        return $content;
+        try {
+            $content = $response->getContent();
+            $content = $response->toArray();
+            return $content;
+        } catch (\Throwable $th) {
+            return [];
+        }
     }
     public function getFicheMetierDataLier(string $projectDir): array
     {

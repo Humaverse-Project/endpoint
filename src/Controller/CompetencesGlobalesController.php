@@ -65,42 +65,44 @@ class CompetencesGlobalesController extends AbstractController
             }
             sleep(1);
             $data = $romeInterface->getFicheMetierDatainformation($access["access_token"], $metier->getRomeCoderome());
-            $resultats = array_map(function($valeur) {
-                $type = [];
-                for ($i=0; $i < count($valeur["competences"]); $i++) { 
-                    $type[] = $valeur["competences"][$i]["type"];
+            if (!empty($data)) {
+                $resultats = array_map(function($valeur) {
+                    $type = [];
+                    for ($i=0; $i < count($valeur["competences"]); $i++) { 
+                        $type[] = $valeur["competences"][$i]["type"];
+                    }
+                    if (in_array("MACRO-SAVOIR-ETRE-PROFESSIONNEL", $type) or in_array("MACRO-SAVOIR-ETRE", $type)) {
+                        $typecomp = "SAVOIR ÊTRE";
+                    } else {
+                        $typecomp = "SAVOIRS FAIRE";
+                    }
+                    return [
+                        "comp_gb_categorie" => $typecomp,
+                        "comp_gb_titre"=> $valeur["enjeu"]["libelle"]
+                    ];
+                }, $data["groupesCompetencesMobilisees"]);
+                $resultatssavoir = array_map(function($valeur) {
+                    return [
+                        "comp_gb_categorie" => "SAVOIRS",
+                        "comp_gb_titre"=> $valeur["categorieSavoirs"]["libelle"]
+                    ];
+                }, $data["groupesSavoirs"]);
+                $result = array_merge($resultats, $resultatssavoir);
+                $result = $arrayHelpers->arrayunique($result);
+                $competanceglbtoinsert = [];
+                for ($i=0; $i < count($result); $i++) { 
+                    $key = $result[$i];
+                    $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
+                        return ($entiteRome->getCompGbCategorie() === $key["comp_gb_categorie"] and $entiteRome->getCompGbTitre() === $key["comp_gb_titre"]);
+                    });
+                    if (empty($comptanceglobal)) {
+                        $competanceglbtoinsert[] = $key;
+                    }
                 }
-                if (in_array("MACRO-SAVOIR-ETRE-PROFESSIONNEL", $type) or in_array("MACRO-SAVOIR-ETRE", $type)) {
-                    $typecomp = "SAVOIR ÊTRE";
-                } else {
-                    $typecomp = "SAVOIRS FAIRE";
-                }
-                return [
-                    "comp_gb_categorie" => $typecomp,
-                    "comp_gb_titre"=> $valeur["enjeu"]["libelle"]
-                ];
-            }, $data["groupesCompetencesMobilisees"]);
-            $resultatssavoir = array_map(function($valeur) {
-                return [
-                    "comp_gb_categorie" => "SAVOIRS",
-                    "comp_gb_titre"=> $valeur["categorieSavoirs"]["libelle"]
-                ];
-            }, $data["groupesSavoirs"]);
-            $result = array_merge($resultats, $resultatssavoir);
-            $result = $arrayHelpers->arrayunique($result);
-            $competanceglbtoinsert = [];
-            for ($i=0; $i < count($result); $i++) { 
-                $key = $result[$i];
-                $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
-                    return ($entiteRome->getCompGbCategorie() === $key["comp_gb_categorie"] and $entiteRome->getCompGbTitre() === $key["comp_gb_titre"]);
-                });
-                if (empty($comptanceglobal)) {
-                    $competanceglbtoinsert[] = $key;
-                }
+                $competencesGlobalesRepository->batchinsert($competanceglbtoinsert);
+                $listcompetanceglobal = $competencesGlobalesRepository->findAll();
+                $i = $i+1;
             }
-            $competencesGlobalesRepository->batchinsert($competanceglbtoinsert);
-            $listcompetanceglobal = $competencesGlobalesRepository->findAll();
-            $i = $i+1;
         }
         dd("terminer");
     }

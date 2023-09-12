@@ -64,51 +64,52 @@ class BriquesCompetencesController extends AbstractController
             }
             sleep(1);
             $data = $romeInterface->getFicheMetierDatainformation($access["access_token"], $metier->getRomeCoderome());
-            $resultats = array_map(function($valeur) {
-                $type = [];
-                for ($i=0; $i < count($valeur["competences"]); $i++) { 
-                    $type[] = $valeur["competences"][$i]["type"];
-                }
-                if (in_array("MACRO-SAVOIR-ETRE-PROFESSIONNEL", $type) or in_array("MACRO-SAVOIR-ETRE", $type)) {
-                    $typecomp = "SAVOIR ÊTRE";
-                } else {
-                    $typecomp = "SAVOIRS FAIRE";
-                }
-                return [
-                    "comp_gb_categorie" => $typecomp,
-                    "comp_gb_titre"=> $valeur["enjeu"]["libelle"],
-                    "competancelist"=> $valeur["competences"]
-                ];
-            }, $data["groupesCompetencesMobilisees"]);
-            $resultatssavoir = array_map(function($valeur) {
-                return [
-                    "comp_gb_categorie" => "SAVOIRS",
-                    "comp_gb_titre"=> $valeur["categorieSavoirs"]["libelle"],
-                    "competancelist"=> $valeur["savoirs"]
-                ];
-            }, $data["groupesSavoirs"]);
-            $result = array_merge($resultats, $resultatssavoir);
-            for ($i=0; $i < count($result); $i++) { 
-                $key = $result[$i];
-                $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
-                    return ($entiteRome->getCompGbCategorie() === $key["comp_gb_categorie"] and $entiteRome->getCompGbTitre() === $key["comp_gb_titre"]);
-                });
-                if (!empty($comptanceglobal)) {
-                    rsort($comptanceglobal);
-                    $listcompetance = $result[$i]["competancelist"];
-                    for ($m=0; $m < count($listcompetance); $m++) {
-                        $brique = new BriquesCompetences;
-                        $brique->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                        $brique->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                        $brique->setRome($metier);
-                        $brique->setCompGb($comptanceglobal[0]);
-                        $brique->setBrqCompTitre($listcompetance[$m]["libelle"]);
-                        $briquesCompetencesRepository->add($brique);
+            if (!empty($data)) {
+                $resultats = array_map(function($valeur) {
+                    $type = [];
+                    for ($i=0; $i < count($valeur["competences"]); $i++) { 
+                        $type[] = $valeur["competences"][$i]["type"];
+                    }
+                    if (in_array("MACRO-SAVOIR-ETRE-PROFESSIONNEL", $type) or in_array("MACRO-SAVOIR-ETRE", $type)) {
+                        $typecomp = "SAVOIR ÊTRE";
+                    } else {
+                        $typecomp = "SAVOIRS FAIRE";
+                    }
+                    return [
+                        "comp_gb_categorie" => $typecomp,
+                        "comp_gb_titre"=> $valeur["enjeu"]["libelle"],
+                        "competancelist"=> $valeur["competences"]
+                    ];
+                }, $data["groupesCompetencesMobilisees"]);
+                $resultatssavoir = array_map(function($valeur) {
+                    return [
+                        "comp_gb_categorie" => "SAVOIRS",
+                        "comp_gb_titre"=> $valeur["categorieSavoirs"]["libelle"],
+                        "competancelist"=> $valeur["savoirs"]
+                    ];
+                }, $data["groupesSavoirs"]);
+                $result = array_merge($resultats, $resultatssavoir);
+                for ($i=0; $i < count($result); $i++) { 
+                    $key = $result[$i];
+                    $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
+                        return ($entiteRome->getCompGbCategorie() === $key["comp_gb_categorie"] and $entiteRome->getCompGbTitre() === $key["comp_gb_titre"]);
+                    });
+                    if (!empty($comptanceglobal)) {
+                        rsort($comptanceglobal);
+                        $listcompetance = $result[$i]["competancelist"];
+                        for ($m=0; $m < count($listcompetance); $m++) {
+                            $brique = new BriquesCompetences;
+                            $brique->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                            $brique->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                            $brique->setRome($metier);
+                            $brique->setCompGb($comptanceglobal[0]);
+                            $brique->setBrqCompTitre($listcompetance[$m]["libelle"]);
+                            $briquesCompetencesRepository->add($brique);
+                        }
                     }
                 }
+                $i = $i+1;
             }
-            //dd($briqtoinsertinsert);
-            $i = $i+1;
         }
         dd($briquesCompetencesRepository->findAll());
     }

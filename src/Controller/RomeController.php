@@ -33,35 +33,40 @@ class RomeController extends AbstractController
         $scope = "api_rome-metiersv1 nomenclatureRome";
         $access = $romeInterface->authetification($scope);
         $list = $romeInterface->getFicheMetierData($access["access_token"]);
-        $romeRepository->batchinsert($list);
-        $romelist = $romeRepository->findAll();
-        $projectDir = $this->getParameter('kernel.project_dir')."/public/unix_rubrique_mobilite_v451_utf8.csv";
-        $result = $romeInterface->getFicheMetierDataLier($projectDir);
-        foreach ($result as $key => $value) {
-            $rome = array_filter($romelist, function ($entiteRome) use ($key) {
-                return $entiteRome->getRomeCoderome() === $key;
-            });
-            rsort($rome);
-            for ($i=0; $i < count($value); $i++) { 
-                $romecible = $value[$i]["code_rome_cible"];
-                $romemobil = array_filter($romelist, function ($entiteRome) use ($romecible) {
-                    return $entiteRome->getRomeCoderome() === $romecible;
+        if (!empty($list)) {
+            $romeRepository->batchinsert($list);
+            $romelist = $romeRepository->findAll();
+            $projectDir = $this->getParameter('kernel.project_dir')."/public/unix_rubrique_mobilite_v451_utf8.csv";
+            $result = $romeInterface->getFicheMetierDataLier($projectDir);
+            foreach ($result as $key => $value) {
+                $rome = array_filter($romelist, function ($entiteRome) use ($key) {
+                    return $entiteRome->getRomeCoderome() === $key;
                 });
-                rsort($romemobil);
-                if (!empty($rome) and !empty($romemobil)) {
-                    if ($value[$i]["code_type_mobilite"] == 2) {
-                        $rome[0]->addFichesRomeEvolution($romemobil[0]);
-                    } else {
-                        $rome[0]->addFichesRomeProch($romemobil[0]);
+                rsort($rome);
+                for ($i=0; $i < count($value); $i++) { 
+                    $romecible = $value[$i]["code_rome_cible"];
+                    $romemobil = array_filter($romelist, function ($entiteRome) use ($romecible) {
+                        return $entiteRome->getRomeCoderome() === $romecible;
+                    });
+                    rsort($romemobil);
+                    if (!empty($rome) and !empty($romemobil)) {
+                        if ($value[$i]["code_type_mobilite"] == 2) {
+                            $rome[0]->addFichesRomeEvolution($romemobil[0]);
+                        } else {
+                            $rome[0]->addFichesRomeProch($romemobil[0]);
+                        }
                     }
                 }
+                if (!empty($rome)){
+                    $romeRepository->add($rome[0]);
+                }
             }
-            if (!empty($rome)){
-                $romeRepository->add($rome[0]);
-            }
+            $romelist = $romeRepository->findAll();
+            dd($romelist);
+        } else {
+            dd("erreur connexion pôle emplois");
         }
-        $romelist = $romeRepository->findAll();
-        dd($romelist);
+        
     }
 
     /**
