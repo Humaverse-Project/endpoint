@@ -62,6 +62,16 @@ class Compte
      */
     private $updated_at;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $compte_telephone;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $compte_service;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -171,6 +181,30 @@ class Compte
     public function setUpdatedAt(\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getCompteTelephone(): ?string
+    {
+        return $this->compte_telephone;
+    }
+
+    public function setCompteTelephone(?string $compte_telephone): self
+    {
+        $this->compte_telephone = $compte_telephone;
+
+        return $this;
+    }
+
+    public function getCompteService(): ?string
+    {
+        return $this->compte_service;
+    }
+
+    public function setCompteService(?string $compte_service): self
+    {
+        $this->compte_service = $compte_service;
 
         return $this;
     }
