@@ -34,8 +34,12 @@ class RomeController extends AbstractController
         $access = $romeInterface->authetification($scope);
         $list = $romeInterface->getFicheMetierData($access["access_token"]);
         if (!empty($list)) {
-            $romeRepository->batchinsert($list);
             $romelist = $romeRepository->findAll();
+            if (!empty($romelist)) {
+                $romeRepository->batchinsert($list);
+                $romelist = $romeRepository->findAll();
+                dd("rome déjà synchroniser");
+            }
             $projectDir = $this->getParameter('kernel.project_dir')."/public/unix_rubrique_mobilite_v451_utf8.csv";
             $result = $romeInterface->getFicheMetierDataLier($projectDir);
             foreach ($result as $key => $value) {
