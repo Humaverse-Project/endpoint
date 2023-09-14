@@ -51,6 +51,8 @@ class EntrepriseController extends AbstractController
         $entrepriseRepository->add($entreprise);
         $compte = new Compte();
         $compte->setCompteEmail($request->request->get("emailrh"));
+        $compte->setCompteTelephone($request->request->get("telephonerh"));
+        $compte->setCompteService($request->request->get("servicerh"));
         $compte->setCompteMotDePasse($request->request->get("password"));
         $compte->setCompteEntrepriseId($entreprise);
         $compte->setCompteNomUtilisateur($request->request->get("emailrh"));
