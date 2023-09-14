@@ -33,6 +33,7 @@ class ContextesTravailController extends AbstractController
     public function synchrome(RomeRepository $romeRepository, RomeInterface $romeInterface, ContextesTravailRepository $contextesTravailRepository, BriquesContexteRepository $briquesContexteRepository)
     {
         set_time_limit(500);
+        ini_set('memory_limit', '2566M');
         $scope = "nomenclatureRome api_rome-metiersv1";
         $access = $romeInterface->authetification($scope);
         $romemetierlist = $romeRepository->findAll();

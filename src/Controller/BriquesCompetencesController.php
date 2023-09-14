@@ -53,6 +53,7 @@ class BriquesCompetencesController extends AbstractController
     public function synchrome(RomeRepository $romeRepository, RomeInterface $romeInterface, CompetencesGlobalesRepository $competencesGlobalesRepository, BriquesCompetencesRepository $briquesCompetencesRepository)
     {
         set_time_limit(1500);
+        ini_set('memory_limit', '2566M');
         $scope = "nomenclatureRome api_rome-fiches-metiersv1";
         $access = $romeInterface->authetification($scope);
         $romemetierlist = $romeRepository->findAll();
