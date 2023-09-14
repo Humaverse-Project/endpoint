@@ -36,9 +36,10 @@ class RomeController extends AbstractController
         if (!empty($list)) {
             $romelist = $romeRepository->findAll();
             if (!empty($romelist)) {
+                dd("rome déjà synchroniser");
+            } else {
                 $romeRepository->batchinsert($list);
                 $romelist = $romeRepository->findAll();
-                dd("rome déjà synchroniser");
             }
             $projectDir = $this->getParameter('kernel.project_dir')."/public/unix_rubrique_mobilite_v451_utf8.csv";
             $result = $romeInterface->getFicheMetierDataLier($projectDir);
