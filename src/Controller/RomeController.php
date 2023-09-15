@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\ApiRequest\RomeInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 /**
  * @Route("/rome")
  */
@@ -23,6 +25,21 @@ class RomeController extends AbstractController
         return $this->render('rome/index.html.twig', [
             'romes' => $romeRepository->findAll(),
         ]);
+    }
+
+    /**
+     * @Route("/list", name="app_rome_list", methods={"GET"})
+     */
+    public function list(RomeRepository $romeRepository): JsonResponse
+    {
+        $allRomes = $romeRepository->findAll();
+
+        $formattedData = [];
+        foreach ($allRomes as $rome) {
+            $formattedData[] = $rome->_toArray();
+        }
+
+        return new JsonResponse($formattedData);
     }
 
     /**

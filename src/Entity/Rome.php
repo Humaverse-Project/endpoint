@@ -6,7 +6,6 @@ use App\Repository\RomeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
 /**
  * @ORM\Entity(repositoryClass=RomeRepository::class)
  */
@@ -262,5 +261,41 @@ class Rome
         }
 
         return $this;
+    }
+    public function _toArray(): array
+    {
+        $formattedData = [
+            'id' => $this->getId(),
+            'nom' => $this->getRomeTitre(),
+            'rome_coderome' => $this->getRomeCoderome(),
+            'rome_definition' => $this->getRomeDefinition(),
+            'rome_acces_metier' => $this->getRomeAccesMetier(),
+            'created_at' => $this->getCreatedAt(),
+            'updated_at' => $this->getUpdatedAt(),
+            'romeproche' => [],
+            'romeevolution'=>[]
+        ];
+
+        foreach ($this->getFichesRomeProches() as $proche) {
+            $formattedData['romeproche'][] = [
+                'id' => $proche->getId(),
+                'nom' => $proche->getRomeTitre(),
+                'rome_coderome' => $proche->getRomeCoderome(),
+                'rome_definition' => $proche->getRomeDefinition(),
+                'rome_acces_metier' => $proche->getRomeAccesMetier(),
+            ];
+        }
+
+        foreach ($this->getFichesRomeEvolution() as $evolution) {
+            $formattedData['romeevolution'][] = [
+                'id' => $evolution->getId(),
+                'nom' => $evolution->getRomeTitre(),
+                'rome_coderome' => $evolution->getRomeCoderome(),
+                'rome_definition' => $evolution->getRomeDefinition(),
+                'rome_acces_metier' => $evolution->getRomeAccesMetier(),
+            ];
+        }
+
+        return $formattedData;
     }
 }
