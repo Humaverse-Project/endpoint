@@ -284,14 +284,6 @@ class Entreprise
         return $this;
     }
 
-    /**
-     * @return Collection<int, Compte>
-     */
-    public function getComptes(): Collection
-    {
-        return $this->comptes;
-    }
-
     public function addCompte(Compte $compte): self
     {
         if (!$this->comptes->contains($compte)) {
