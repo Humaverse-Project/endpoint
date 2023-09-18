@@ -28,11 +28,6 @@ class Emploi
     private $rome;
 
     /**
-     * @ORM\ManyToOne(targetEntity=FichesCompetences::class, inversedBy="emplois")
-     */
-    private $fiche_competence;
-
-    /**
      * @ORM\Column(type="datetime_immutable")
      */
     private $created_at;
@@ -67,18 +62,6 @@ class Emploi
     public function setRome(?Rome $rome): self
     {
         $this->rome = $rome;
-
-        return $this;
-    }
-
-    public function getFicheCompetence(): ?FichesCompetences
-    {
-        return $this->fiche_competence;
-    }
-
-    public function setFicheCompetence(?FichesCompetences $fiche_competence): self
-    {
-        $this->fiche_competence = $fiche_competence;
 
         return $this;
     }

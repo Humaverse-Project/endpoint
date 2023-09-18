@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ContextesTravail;
 use App\Entity\BriquesContexte;
+use App\Entity\Emploi;
 use App\Form\ContextesTravailType;
 use App\Repository\ContextesTravailRepository;
 use App\Repository\BriquesContexteRepository;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\ApiRequest\RomeInterface;
 use App\Repository\RomeRepository;
+use App\Repository\EmploiRepository;
 /**
  * @Route("/contextes/travail")
  */
@@ -30,7 +32,7 @@ class ContextesTravailController extends AbstractController
     /**
      * @Route("/synchrome", name="app_contextes_travail_synchrome", methods={"GET"})
      */
-    public function synchrome(RomeRepository $romeRepository, RomeInterface $romeInterface, ContextesTravailRepository $contextesTravailRepository, BriquesContexteRepository $briquesContexteRepository)
+    public function synchrome(RomeRepository $romeRepository, RomeInterface $romeInterface, ContextesTravailRepository $contextesTravailRepository, BriquesContexteRepository $briquesContexteRepository, EmploiRepository $emploiRepository)
     {
         set_time_limit(500);
         ini_set('memory_limit', '2566M');
@@ -86,8 +88,19 @@ class ContextesTravailController extends AbstractController
                     }
                     return $data;
                 }, $data["contextesTravail"]);
-                for ($i=0; $i < count($resultatsbrique); $i++) { 
-                    $briquesContexteRepository->add($resultatsbrique[$i]);
+                for ($k=0; $k < count($resultatsbrique); $k++) { 
+                    $briquesContexteRepository->add($resultatsbrique[$k]);
+                }
+                $resultats = array_map(function($valeur) use ($metier) {
+                    $data = new Emploi;
+                    $data->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $data->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $data->setEmploiTitre($valeur["libelle"]);
+                    $data->setRome($metier);
+                    return $data;
+                }, $data["appellations"]);
+                for ($k=0; $k < count($resultats); $k++) { 
+                    $emploiRepository->add($resultats[$k]);
                 }
                 $i = $i+1;
             }
