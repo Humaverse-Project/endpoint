@@ -91,8 +91,8 @@ class CompetencesGlobalesController extends AbstractController
                 $result = array_merge($resultats, $resultatssavoir);
                 $result = $arrayHelpers->arrayunique($result);
                 $competanceglbtoinsert = [];
-                for ($i=0; $i < count($result); $i++) { 
-                    $key = $result[$i];
+                for ($m=0; $m < count($result); $m++) { 
+                    $key = $result[$m];
                     $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
                         return ($entiteRome->getCompGbCategorie() === $key["comp_gb_categorie"] and $entiteRome->getCompGbTitre() === $key["comp_gb_titre"]);
                     });
