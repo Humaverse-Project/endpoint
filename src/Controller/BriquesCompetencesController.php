@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\RomeRepository;
 use App\Repository\CompetencesGlobalesRepository;
 use App\Services\ApiRequest\RomeInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 /**
  * @Route("/briques/competences")
  */
@@ -113,6 +115,14 @@ class BriquesCompetencesController extends AbstractController
             }
         }
         dd($briquesCompetencesRepository->findAll());
+    }
+    /**
+     * @Route("/load", name="app_competences_globales_load", methods={"POST"})
+     */
+    public function load(Request $request,BriquesCompetencesRepository $briquesCompetencesRepository, CompetencesGlobalesRepository $competencesGlobalesRepository): JsonResponse
+    {
+        $competance = $competencesGlobalesRepository->find((int)$request->request->get("categorie_id"));
+        return $this->json($briquesCompetencesRepository->findBy(["comp_gb"=>$competance]));
     }
 
     /**

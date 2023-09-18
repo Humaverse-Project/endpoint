@@ -54,15 +54,9 @@ class FichesCompetences
      */
     private $updated_at;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Emploi::class, mappedBy="fiche_competence")
-     */
-    private $emplois;
-
     public function __construct()
     {
         $this->fic_comp_competences = new ArrayCollection();
-        $this->emplois = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,36 +156,6 @@ class FichesCompetences
     public function setUpdatedAt(\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Emploi>
-     */
-    public function getEmplois(): Collection
-    {
-        return $this->emplois;
-    }
-
-    public function addEmploi(Emploi $emploi): self
-    {
-        if (!$this->emplois->contains($emploi)) {
-            $this->emplois[] = $emploi;
-            $emploi->setFicheCompetence($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEmploi(Emploi $emploi): self
-    {
-        if ($this->emplois->removeElement($emploi)) {
-            // set the owning side to null (unless already changed)
-            if ($emploi->getFicheCompetence() === $this) {
-                $emploi->setFicheCompetence(null);
-            }
-        }
 
         return $this;
     }
