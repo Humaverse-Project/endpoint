@@ -102,14 +102,6 @@ class CompetencesGlobales
         return $this;
     }
 
-    /**
-     * @return Collection<int, BriquesCompetences>
-     */
-    public function getBriquesCompetences(): Collection
-    {
-        return $this->briquesCompetences;
-    }
-
     public function addBriquesCompetence(BriquesCompetences $briquesCompetence): self
     {
         if (!$this->briquesCompetences->contains($briquesCompetence)) {
