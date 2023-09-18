@@ -126,18 +126,12 @@ class RomeController extends AbstractController
      */
     public function edit(Request $request, Rome $rome, RomeRepository $romeRepository): Response
     {
-        $form = $this->createForm(RomeType::class, $rome);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $romeRepository->add($rome);
-            return $this->redirectToRoute('app_rome_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('rome/edit.html.twig', [
-            'rome' => $rome,
-            'form' => $form,
-        ]);
+        $rome->setRomeAccesMetier($request->request->get("rome_acces_metier"));
+        $rome->setRomeDefinition($request->request->get("rome_definition"));
+        $rome->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+        $rome->setRomeTitre($request->request->get("nom"));
+        $romeRepository->add($rome);
+        return $this->redirectToRoute('app_rome_list', [], Response::HTTP_SEE_OTHER);
     }
 
     /**
