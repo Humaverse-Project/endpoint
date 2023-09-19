@@ -35,15 +35,13 @@ class FichesCompetencesController extends AbstractController
      */
     public function new(Request $request, FichesCompetencesRepository $fichesCompetencesRepository, AccreditationRepository $accreditationRepository, BriquesCompetencesRepository $briquesCompetencesRepository, CompetencesGlobalesRepository $competencesGlobalesRepository): JsonResponse
     {
-        $acreditation = $accreditationRepository->findBy(["id"=> $request->request->get("accreid")]);
-        if (empty($acreditation)) {
+        $acreditation = $accreditationRepository->find((int)$request->request->get("accreid"));
+        if (!$acreditation) {
             $acreditation = new Accreditation();
             $acreditation->setAccreTitre($request->request->get("accretitre"));
             $acreditation->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
             $acreditation->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
             $accreditationRepository->add($acreditation);
-        } else {
-            $acreditation = $acreditation[0];
         }
         $fichesCompetence = new FichesCompetences();
         $fichesCompetence->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
