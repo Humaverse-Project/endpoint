@@ -104,11 +104,17 @@ class Entreprise
      */
     private $fichesPostes;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Personne::class, mappedBy="entreprise")
+     */
+    private $personnes;
+
     public function __construct()
     {
         $this->comptes = new ArrayCollection();
         $this->experiences = new ArrayCollection();
         $this->fichesPostes = new ArrayCollection();
+        $this->personnes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -360,6 +366,36 @@ class Entreprise
             // set the owning side to null (unless already changed)
             if ($fichesPoste->getFichesPostesEntreprise() === $this) {
                 $fichesPoste->setFichesPostesEntreprise(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // /**
+    //  * @return Collection<int, Personne>
+    //  */
+    // public function getPersonnes(): Collection
+    // {
+    //     return $this->personnes;
+    // }
+
+    public function addPersonne(Personne $personne): self
+    {
+        if (!$this->personnes->contains($personne)) {
+            $this->personnes[] = $personne;
+            $personne->setEntreprise($this);
+        }
+
+        return $this;
+    }
+
+    public function removePersonne(Personne $personne): self
+    {
+        if ($this->personnes->removeElement($personne)) {
+            // set the owning side to null (unless already changed)
+            if ($personne->getEntreprise() === $this) {
+                $personne->setEntreprise(null);
             }
         }
 

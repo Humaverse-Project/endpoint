@@ -92,6 +92,11 @@ class Personne
      */
     private $updated_at;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Entreprise::class, inversedBy="personnes")
+     */
+    private $entreprise;
+
     public function __construct()
     {
         $this->personne_experiences = new ArrayCollection();
@@ -304,6 +309,18 @@ class Personne
     public function setUpdatedAt(\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    // public function getEntreprise(): ?Entreprise
+    // {
+    //     return $this->entreprise;
+    // }
+
+    public function setEntreprise(?Entreprise $entreprise): self
+    {
+        $this->entreprise = $entreprise;
 
         return $this;
     }
