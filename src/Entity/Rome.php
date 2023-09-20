@@ -203,13 +203,13 @@ class Rome
         return $this;
     }
 
-    /**
-     * @return Collection<int, BriquesCompetences>
-     */
-    public function getBriquesCompetences(): Collection
-    {
-        return $this->briquesCompetences;
-    }
+    // /**
+    //  * @return Collection<int, BriquesCompetences>
+    //  */
+    // public function getBriquesCompetences(): Collection
+    // {
+    //     return $this->briquesCompetences;
+    // }
 
     public function addBriquesCompetence(BriquesCompetences $briquesCompetence): self
     {
@@ -221,17 +221,17 @@ class Rome
         return $this;
     }
 
-    public function removeBriquesCompetence(BriquesCompetences $briquesCompetence): self
-    {
-        if ($this->briquesCompetences->removeElement($briquesCompetence)) {
-            // set the owning side to null (unless already changed)
-            if ($briquesCompetence->getRome() === $this) {
-                $briquesCompetence->setRome(null);
-            }
-        }
+    // public function removeBriquesCompetence(BriquesCompetences $briquesCompetence): self
+    // {
+    //     if ($this->briquesCompetences->removeElement($briquesCompetence)) {
+    //         // set the owning side to null (unless already changed)
+    //         if ($briquesCompetence->getRome() === $this) {
+    //             $briquesCompetence->setRome(null);
+    //         }
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
     /**
      * @return Collection<int, Emploi>

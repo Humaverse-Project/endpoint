@@ -198,6 +198,23 @@ class Personne
         return $this->personne_poste;
     }
 
+    public function _getOrganigrammeData() : array {
+        $data = [
+            'id' => $this->getId(),
+            'personneNom' => $this->getPersonneNom(),
+            'personnePrenom' => $this->getPersonnePrenom(),
+            'personnePoste'=> []
+        ];
+
+        if (!empty($this->getPersonnePoste())) {
+            $data['personnePoste'] = [
+                'id' => $this->getPersonnePoste()->getId(),
+                'fiches_postes_titre' => $this->getPersonnePoste()->getFichesPostesTitre()
+            ];
+        }
+        return $data;
+    }
+
     public function setPersonnePoste(?FichesPostes $personne_poste): self
     {
         $this->personne_poste = $personne_poste;

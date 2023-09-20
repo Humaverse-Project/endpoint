@@ -420,4 +420,20 @@ class FichesPostes
 
         return $this;
     }
+    public function _getOrganigrammeData(): array
+    {
+        $data = [
+            'id' => $this->getId(),
+            'fiches_postes_titre' => $this->getFichesPostesTitre(),
+            'fiches_postes_nplus1' => []
+        ];
+
+        if (!empty($this->getFichesPostesNplus1())) {
+            $data['fiches_postes_nplus1'] = [
+                'id' => $this->getFichesPostesNplus1()->getId(),
+                'fiches_postes_titre' => $this->getFichesPostesNplus1()->getFichesPostesTitre()
+            ];
+        }
+        return $data;
+    }
 }
