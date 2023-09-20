@@ -390,15 +390,15 @@ class Entreprise
         return $this;
     }
 
-    public function removePersonne(Personne $personne): self
-    {
-        if ($this->personnes->removeElement($personne)) {
-            // set the owning side to null (unless already changed)
-            if ($personne->getEntreprise() === $this) {
-                $personne->setEntreprise(null);
-            }
-        }
+    // public function removePersonne(Personne $personne): self
+    // {
+    //     if ($this->personnes->removeElement($personne)) {
+    //         // set the owning side to null (unless already changed)
+    //         if ($personne->getEntreprise() === $this) {
+    //             $personne->setEntreprise(null);
+    //         }
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 }

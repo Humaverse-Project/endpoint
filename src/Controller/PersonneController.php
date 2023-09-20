@@ -71,8 +71,7 @@ class PersonneController extends AbstractController
         $personne->addPersonneAccreditation($accreditation);
         $personne->setEntreprise($entreprise);
         $personneRepository->add($personne);
-        $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
-        $data["personnelist"] = $entreprise->getPersonnes();
+        $data["personnelist"] = $personneRepository->findBy(["entreprise"=> $entreprise]);
         return $this->json($data);
     }
 
