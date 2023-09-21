@@ -36,7 +36,15 @@ class OrganigrammeController extends AbstractController
         foreach ($allRomes as $rome) {
             $data["rome"][] = $rome->_toArray();
         }
-        $data["competance"] = $fichesCompetencesRepository->findAll();
+        $competance = $fichesCompetencesRepository->findBy(["entreprise"=> NULL]);
+        $competance2 = $fichesCompetencesRepository->findBy(["entreprise"=> $entreprise]);
+        $data["competance"] = [];
+        foreach ($competance as $comp) {
+            $data["competance"][] = $comp->_getListCompetance();
+        }
+        foreach ($competance2 as $comp) {
+            $data["competance"][] = $comp->_getListCompetance();
+        }
         return $this->json($data);
     }
     /**

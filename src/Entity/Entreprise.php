@@ -342,13 +342,13 @@ class Entreprise
         return $this;
     }
 
-    /**
-     * @return Collection<int, FichesPostes>
-     */
-    public function getFichesPostes(): Collection
-    {
-        return $this->fichesPostes;
-    }
+    // /**
+    //  * @return Collection<int, FichesPostes>
+    //  */
+    // public function getFichesPostes(): Collection
+    // {
+    //     return $this->fichesPostes;
+    // }
 
     public function addFichesPoste(FichesPostes $fichesPoste): self
     {
