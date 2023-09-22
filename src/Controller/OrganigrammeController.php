@@ -31,6 +31,11 @@ class OrganigrammeController extends AbstractController
         foreach ($listpost as $key) {
             $data["poste"][] = $key->_getOrganigrammeData();
         }
+        $listpost = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> null]);
+        $data["poste_generique"] = [];
+        foreach ($listpost as $key) {
+            $data["poste_generique"][] = $key->_getListPostData();
+        }
         $allRomes = $romeRepository->findAll();
         $data["rome"] = [];
         foreach ($allRomes as $rome) {

@@ -445,15 +445,18 @@ class FichesPostes
     public function _getListPostData(): array
     {
         $data = [
+            'label'=> "[".$this->getFichesPostesVersion()."] ".$this->getFichesPostesTitre(),
             'id' => $this->getId(),
             'titre' => $this->getFichesPostesTitre(),
             'createdAt'=> $this->getCreatedAt(),
             'activite'=> $this->getFichesPostesActivite(),
             'version'=> $this->getFichesPostesVersion(),
             'fichecompetance' => [
+                "id"=> $this->getFichesPostesFicheCompetence()->getId(),
                 "titre" =>$this->getFichesPostesFicheCompetence()->getFicCompTitreEmploi(),
                 "niveau"=>$this->getFichesPostesFicheCompetence()->getFicCompCompetencesNiveau(),
-                "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion()
+                "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion(),
+                "briquelist" => $this->getFichesPostesFicheCompetence()->getFicCompCompetences()
             ],
             'validation'=> $this->getFichesPostesValidationAt(),
             'visa'=> $this->getFichesPostesVisaAt(),
@@ -462,6 +465,7 @@ class FichesPostes
             'agrement'=> $this->getFichesPostesAgrement(),
             'condition'=> $this->getConditionsGenerales(),
             'rome' => [
+                "id"=>$this->getFichesPostesFicheRome()->getId(),
                 "codeRome"=> $this->getFichesPostesFicheRome()->getRomeCoderome(),
                 "titre"=> $this->getFichesPostesFicheRome()->getRomeTitre()
             ],
