@@ -183,7 +183,11 @@ class FichesCompetences
             "id"=> $this->getId(),
             "ficCompVersion"=> $this->getFicCompVersion(),
             "ficCompTitreEmploi" => $this->getFicCompTitreEmploi(),
-            "ficCompCompetencesNiveau"=> $this->getFicCompCompetencesNiveau()
+            "ficCompCompetencesNiveau"=> $this->getFicCompCompetencesNiveau(),
+            "titre" =>$this->getFicCompTitreEmploi(),
+            "niveau"=>$this->getFicCompCompetencesNiveau(),
+            "version"=> $this->getFicCompVersion(),
+            "briquelist" => $this->getFicCompCompetences()
         ];
     }
 }
