@@ -119,6 +119,11 @@ class FichesPostes
      */
     private $updated_at;
 
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $fiches_postes_version;
+
     public function __construct()
     {
         $this->fiches_postes_liaison_hierarchique = new ArrayCollection();
@@ -417,6 +422,73 @@ class FichesPostes
     public function setUpdatedAt(\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+    public function _getOrganigrammeData(): array
+    {
+        $data = [
+            'id' => $this->getId(),
+            'fiches_postes_titre' => $this->getFichesPostesTitre(),
+            'fiches_postes_nplus1' => []
+        ];
+
+        if (!empty($this->getFichesPostesNplus1())) {
+            $data['fiches_postes_nplus1'] = [
+                'id' => $this->getFichesPostesNplus1()->getId(),
+                'fiches_postes_titre' => $this->getFichesPostesNplus1()->getFichesPostesTitre()
+            ];
+        }
+        return $data;
+    }
+
+    public function _getListPostData(): array
+    {
+        $data = [
+            'label'=> "[".$this->getFichesPostesVersion()."] ".$this->getFichesPostesTitre(),
+            'id' => $this->getId(),
+            'titre' => $this->getFichesPostesTitre(),
+            'createdAt'=> $this->getCreatedAt(),
+            'activite'=> $this->getFichesPostesActivite(),
+            'version'=> $this->getFichesPostesVersion(),
+            'fichecompetance' => [
+                "id"=> $this->getFichesPostesFicheCompetence()->getId(),
+                "titre" =>$this->getFichesPostesFicheCompetence()->getFicCompTitreEmploi(),
+                "niveau"=>$this->getFichesPostesFicheCompetence()->getFicCompCompetencesNiveau(),
+                "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion(),
+                "briquelist" => $this->getFichesPostesFicheCompetence()->getFicCompCompetences()
+            ],
+            'validation'=> $this->getFichesPostesValidationAt(),
+            'visa'=> $this->getFichesPostesVisaAt(),
+            'instruction'=>$this->getInstructions(),
+            'definition'=> $this->getFichesPostesDefinition(),
+            'agrement'=> $this->getFichesPostesAgrement(),
+            'condition'=> $this->getConditionsGenerales(),
+            'rome' => [
+                "id"=>$this->getFichesPostesFicheRome()->getId(),
+                "codeRome"=> $this->getFichesPostesFicheRome()->getRomeCoderome(),
+                "titre"=> $this->getFichesPostesFicheRome()->getRomeTitre()
+            ],
+            'fiches_postes_nplus1' => []
+        ];
+
+        if (!empty($this->getFichesPostesNplus1())) {
+            $data['fiches_postes_nplus1'] = [
+                'id' => $this->getFichesPostesNplus1()->getId(),
+                'fiches_postes_titre' => $this->getFichesPostesNplus1()->getFichesPostesTitre()
+            ];
+        }
+        return $data;
+    }
+
+    public function getFichesPostesVersion(): ?float
+    {
+        return $this->fiches_postes_version;
+    }
+
+    public function setFichesPostesVersion(?float $fiches_postes_version): self
+    {
+        $this->fiches_postes_version = $fiches_postes_version;
 
         return $this;
     }

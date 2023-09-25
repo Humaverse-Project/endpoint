@@ -54,6 +54,11 @@ class FichesCompetences
      */
     private $updated_at;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Entreprise::class)
+     */
+    private $entreprise;
+
     public function __construct()
     {
         $this->fic_comp_competences = new ArrayCollection();
@@ -158,5 +163,31 @@ class FichesCompetences
         $this->updated_at = $updated_at;
 
         return $this;
+    }
+
+    public function getEntreprise(): ?Entreprise
+    {
+        return $this->entreprise;
+    }
+
+    public function setEntreprise(?Entreprise $entreprise): self
+    {
+        $this->entreprise = $entreprise;
+
+        return $this;
+    }
+
+    public function _getListCompetance(): array
+    {
+        return [
+            "id"=> $this->getId(),
+            "ficCompVersion"=> $this->getFicCompVersion(),
+            "ficCompTitreEmploi" => $this->getFicCompTitreEmploi(),
+            "ficCompCompetencesNiveau"=> $this->getFicCompCompetencesNiveau(),
+            "titre" =>$this->getFicCompTitreEmploi(),
+            "niveau"=>$this->getFicCompCompetencesNiveau(),
+            "version"=> $this->getFicCompVersion(),
+            "briquelist" => $this->getFicCompCompetences()
+        ];
     }
 }

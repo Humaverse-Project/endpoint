@@ -92,6 +92,11 @@ class Personne
      */
     private $updated_at;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Entreprise::class, inversedBy="personnes")
+     */
+    private $entreprise;
+
     public function __construct()
     {
         $this->personne_experiences = new ArrayCollection();
@@ -191,6 +196,23 @@ class Personne
     public function getPersonnePoste(): ?FichesPostes
     {
         return $this->personne_poste;
+    }
+
+    public function _getOrganigrammeData() : array {
+        $data = [
+            'id' => $this->getId(),
+            'personneNom' => $this->getPersonneNom(),
+            'personnePrenom' => $this->getPersonnePrenom(),
+            'personnePoste'=> []
+        ];
+
+        if (!empty($this->getPersonnePoste())) {
+            $data['personnePoste'] = [
+                'id' => $this->getPersonnePoste()->getId(),
+                'fiches_postes_titre' => $this->getPersonnePoste()->getFichesPostesTitre()
+            ];
+        }
+        return $data;
     }
 
     public function setPersonnePoste(?FichesPostes $personne_poste): self
@@ -304,6 +326,18 @@ class Personne
     public function setUpdatedAt(\DateTimeImmutable $updated_at): self
     {
         $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    // public function getEntreprise(): ?Entreprise
+    // {
+    //     return $this->entreprise;
+    // }
+
+    public function setEntreprise(?Entreprise $entreprise): self
+    {
+        $this->entreprise = $entreprise;
 
         return $this;
     }
