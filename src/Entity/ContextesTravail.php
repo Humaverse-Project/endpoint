@@ -85,13 +85,13 @@ class ContextesTravail
         return $this;
     }
 
-    /**
-     * @return Collection<int, BriquesContexte>
-     */
-    public function getBriquesContextes(): Collection
-    {
-        return $this->briquesContextes;
-    }
+    // /**
+    //  * @return Collection<int, BriquesContexte>
+    //  */
+    // public function getBriquesContextes(): Collection
+    // {
+    //     return $this->briquesContextes;
+    // }
 
     public function addBriquesContexte(BriquesContexte $briquesContexte): self
     {
