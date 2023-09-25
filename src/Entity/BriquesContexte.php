@@ -95,10 +95,10 @@ class BriquesContexte
         return $this;
     }
 
-    public function getRome(): ?Rome
-    {
-        return $this->rome;
-    }
+    // public function getRome(): ?Rome
+    // {
+    //     return $this->rome;
+    // }
 
     public function setRome(?Rome $rome): self
     {

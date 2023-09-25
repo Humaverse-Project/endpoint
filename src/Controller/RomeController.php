@@ -2,8 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\BriquesCompetences;
 use App\Entity\Rome;
 use App\Form\RomeType;
+use App\Repository\BriquesCompetencesRepository;
+use App\Repository\BriquesContexteRepository;
+use App\Repository\EmploiRepository;
 use App\Repository\RomeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +44,19 @@ class RomeController extends AbstractController
         }
 
         return new JsonResponse($formattedData);
+    }
+
+    /**
+     * @Route("/detail", name="app_rome_detail", methods={"POST"})
+     */
+    public function detail( Request $request, RomeRepository $romeRepository, EmploiRepository $emploiRepository, BriquesCompetencesRepository $briquesCompetencesRepository, BriquesContexteRepository $briquesContexteRepository ): JsonResponse
+    {
+        $rome = $romeRepository->findBy(["rome_coderome"=> $request->request->get("code")]);
+        $data["rome"] = $rome[0]->_toArray();
+        $data["appelation"] = $emploiRepository->findBy(["rome"=> $rome[0]]);
+        $data["briquecompetance"] = $briquesCompetencesRepository->findBy(["rome"=> $rome[0]]);
+        $data["briquecontexte"] = $briquesContexteRepository->findBy(["rome"=> $rome[0]]);
+        return $this->json($data);
     }
 
     /**
