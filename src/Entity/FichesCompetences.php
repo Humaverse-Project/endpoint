@@ -30,11 +30,6 @@ class FichesCompetences
     private $fic_comp_competences;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $fic_comp_competences_niveau = [];
-
-    /**
      * @ORM\ManyToOne(targetEntity=Accreditation::class)
      */
     private $fic_comp_accreditations;
@@ -59,9 +54,15 @@ class FichesCompetences
      */
     private $entreprise;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BriquesCompetencesNiveau::class, mappedBy="fichescompetances")
+     */
+    private $briquesCompetencesNiveaux;
+
     public function __construct()
     {
         $this->fic_comp_competences = new ArrayCollection();
+        $this->briquesCompetencesNiveaux = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -101,18 +102,6 @@ class FichesCompetences
     public function removeFicCompCompetence(BriquesCompetences $ficCompCompetence): self
     {
         $this->fic_comp_competences->removeElement($ficCompCompetence);
-
-        return $this;
-    }
-
-    public function getFicCompCompetencesNiveau(): ?array
-    {
-        return $this->fic_comp_competences_niveau;
-    }
-
-    public function setFicCompCompetencesNiveau(?array $fic_comp_competences_niveau): self
-    {
-        $this->fic_comp_competences_niveau = $fic_comp_competences_niveau;
 
         return $this;
     }
@@ -183,11 +172,39 @@ class FichesCompetences
             "id"=> $this->getId(),
             "ficCompVersion"=> $this->getFicCompVersion(),
             "ficCompTitreEmploi" => $this->getFicCompTitreEmploi(),
-            "ficCompCompetencesNiveau"=> $this->getFicCompCompetencesNiveau(),
             "titre" =>$this->getFicCompTitreEmploi(),
-            "niveau"=>$this->getFicCompCompetencesNiveau(),
             "version"=> $this->getFicCompVersion(),
             "briquelist" => $this->getFicCompCompetences()
         ];
     }
+
+        /**
+     * @return Collection<int, BriquesCompetencesNiveau>
+     */
+    public function getBriquesCompetencesNiveaux(): Collection
+    {
+        return $this->briquesCompetencesNiveaux;
+    }
+
+    public function addBriquesCompetencesNiveau(BriquesCompetencesNiveau $briquesCompetencesNiveau): self
+    {
+        if (!$this->briquesCompetencesNiveaux->contains($briquesCompetencesNiveau)) {
+            $this->briquesCompetencesNiveaux[] = $briquesCompetencesNiveau;
+            $briquesCompetencesNiveau->setFichescompetances($this);
+        }
+
+        return $this;
+    }
+
+    // public function removeBriquesCompetencesNiveau(BriquesCompetencesNiveau $briquesCompetencesNiveau): self
+    // {
+    //     if ($this->briquesCompetencesNiveaux->removeElement($briquesCompetencesNiveau)) {
+    //         // set the owning side to null (unless already changed)
+    //         if ($briquesCompetencesNiveau->getFichescompetances() === $this) {
+    //             $briquesCompetencesNiveau->setFichescompetances(null);
+    //         }
+    //     }
+
+    //     return $this;
+    // }
 }

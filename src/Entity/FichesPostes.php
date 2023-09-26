@@ -454,7 +454,7 @@ class FichesPostes
             'fichecompetance' => [
                 "id"=> $this->getFichesPostesFicheCompetence()->getId(),
                 "titre" =>$this->getFichesPostesFicheCompetence()->getFicCompTitreEmploi(),
-                "niveau"=>$this->getFichesPostesFicheCompetence()->getFicCompCompetencesNiveau(),
+                "niveau"=>$this->getFichesPostesFicheCompetence()->getBriquesCompetencesNiveaux(),
                 "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion(),
                 "briquelist" => $this->getFichesPostesFicheCompetence()->getFicCompCompetences()
             ],
