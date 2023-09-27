@@ -59,6 +59,11 @@ class FichesCompetences
      */
     private $briquesCompetencesNiveaux;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Emploi::class, inversedBy="fichesCompetences")
+     */
+    private $appelation;
+
     public function __construct()
     {
         $this->fic_comp_competences = new ArrayCollection();
@@ -207,4 +212,16 @@ class FichesCompetences
 
     //     return $this;
     // }
+
+    public function getAppelation(): ?Emploi
+    {
+        return $this->appelation;
+    }
+
+    public function setAppelation(?Emploi $appelation): self
+    {
+        $this->appelation = $appelation;
+
+        return $this;
+    }
 }
