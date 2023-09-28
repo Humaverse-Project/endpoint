@@ -126,6 +126,7 @@ class BriquesCompetencesController extends AbstractController
                             $briquesCompetencesRepository->add($brique);
                         }
                     } else {
+                        dd($key);
                         $comptanceglobal = new CompetencesGlobales();
                         $comptanceglobal->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
                         $comptanceglobal->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
