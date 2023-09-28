@@ -39,10 +39,10 @@ class ContextesTravailController extends AbstractController
         $scope = "nomenclatureRome api_rome-metiersv1";
         $access = $romeInterface->authetification($scope);
         $romemetierlist = $romeRepository->findAll();
-        $i = 0;
+        $lli = 0;
         $contextesTravail = $contextesTravailRepository->findAll();
         foreach ($romemetierlist as $metier) {
-            if ($i % 100 == 0) {
+            if ($lli % 100 == 0) {
                 $access = $romeInterface->authetification($scope);
             }
             sleep(1);
@@ -102,7 +102,7 @@ class ContextesTravailController extends AbstractController
                 for ($k=0; $k < count($resultats); $k++) { 
                     $emploiRepository->add($resultats[$k]);
                 }
-                $i = $i+1;
+                $lli = $lli+1;
             }
         }
         dd("terminer");

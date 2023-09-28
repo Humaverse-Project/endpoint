@@ -59,10 +59,10 @@ class BriquesCompetencesController extends AbstractController
         $scope = "nomenclatureRome api_rome-fiches-metiersv1";
         $access = $romeInterface->authetification($scope);
         $romemetierlist = $romeRepository->findAll();
-        $i = 0;
+        $g = 0;
         $listcompetanceglobal = $competencesGlobalesRepository->findAll();
         foreach ($romemetierlist as $metier) {
-            if ($i % 100 == 0) {
+            if ($g % 100 == 0) {
                 $access = $romeInterface->authetification($scope);
             }
             sleep(1);
@@ -111,7 +111,7 @@ class BriquesCompetencesController extends AbstractController
                         }
                     }
                 }
-                $i = $i+1;
+                $g = $g+1;
             }
         }
         dd($briquesCompetencesRepository->findAll());
