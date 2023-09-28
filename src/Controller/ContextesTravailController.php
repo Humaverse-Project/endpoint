@@ -88,6 +88,13 @@ class ContextesTravailController extends AbstractController
                     }
                     return $data;
                 }, $data["contextesTravail"]);
+                $briqcontext = $briquesContexteRepository->findBy(["rome"=> $metier]);
+                if (count($briqcontext) == count($resultatsbrique)) continue;
+                if ((count($briqcontext) > count($resultatsbrique)) or (count($briqcontext) < count($resultatsbrique))) {
+                    foreach ($briqcontext as $key) {
+                        $briquesContexteRepository->remove($key);
+                    }
+                }
                 for ($k=0; $k < count($resultatsbrique); $k++) { 
                     $briquesContexteRepository->add($resultatsbrique[$k]);
                 }
@@ -99,9 +106,17 @@ class ContextesTravailController extends AbstractController
                     $data->setRome($metier);
                     return $data;
                 }, $data["appellations"]);
+                $appelationdatabase = $emploiRepository->findBy(["rome"=> $metier]);
+                if (count($appelationdatabase) == count($resultats)) continue;
+                if ((count($appelationdatabase) > count($resultats)) or (count($appelationdatabase) < count($resultats))) {
+                    foreach ($appelationdatabase as $key) {
+                        $emploiRepository->remove($key);
+                    }
+                }
                 for ($k=0; $k < count($resultats); $k++) { 
                     $emploiRepository->add($resultats[$k]);
                 }
+                
                 $lli = $lli+1;
             }
         }
