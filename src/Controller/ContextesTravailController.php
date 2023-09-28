@@ -39,10 +39,10 @@ class ContextesTravailController extends AbstractController
         $scope = "nomenclatureRome api_rome-metiersv1";
         $access = $romeInterface->authetification($scope);
         $romemetierlist = $romeRepository->findAll();
-        $i = 0;
+        $lli = 0;
         $contextesTravail = $contextesTravailRepository->findAll();
         foreach ($romemetierlist as $metier) {
-            if ($i % 100 == 0) {
+            if ($lli % 100 == 0) {
                 $access = $romeInterface->authetification($scope);
             }
             sleep(1);
@@ -88,6 +88,13 @@ class ContextesTravailController extends AbstractController
                     }
                     return $data;
                 }, $data["contextesTravail"]);
+                $briqcontext = $briquesContexteRepository->findBy(["rome"=> $metier]);
+                if (count($briqcontext) == count($resultatsbrique)) continue;
+                if ((count($briqcontext) > count($resultatsbrique)) or (count($briqcontext) < count($resultatsbrique))) {
+                    foreach ($briqcontext as $key) {
+                        $briquesContexteRepository->remove($key);
+                    }
+                }
                 for ($k=0; $k < count($resultatsbrique); $k++) { 
                     $briquesContexteRepository->add($resultatsbrique[$k]);
                 }
@@ -99,10 +106,18 @@ class ContextesTravailController extends AbstractController
                     $data->setRome($metier);
                     return $data;
                 }, $data["appellations"]);
+                $appelationdatabase = $emploiRepository->findBy(["rome"=> $metier]);
+                if (count($appelationdatabase) == count($resultats)) continue;
+                if ((count($appelationdatabase) > count($resultats)) or (count($appelationdatabase) < count($resultats))) {
+                    foreach ($appelationdatabase as $key) {
+                        $emploiRepository->remove($key);
+                    }
+                }
                 for ($k=0; $k < count($resultats); $k++) { 
                     $emploiRepository->add($resultats[$k]);
                 }
-                $i = $i+1;
+                
+                $lli = $lli+1;
             }
         }
         dd("terminer");

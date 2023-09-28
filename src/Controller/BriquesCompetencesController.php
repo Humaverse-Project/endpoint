@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\BriquesCompetences;
+use App\Entity\CompetencesGlobales;
 use App\Form\BriquesCompetencesType;
 use App\Repository\BriquesCompetencesRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,10 +60,10 @@ class BriquesCompetencesController extends AbstractController
         $scope = "nomenclatureRome api_rome-fiches-metiersv1";
         $access = $romeInterface->authetification($scope);
         $romemetierlist = $romeRepository->findAll();
-        $i = 0;
+        $iss = 0;
         $listcompetanceglobal = $competencesGlobalesRepository->findAll();
         foreach ($romemetierlist as $metier) {
-            if ($i % 100 == 0) {
+            if ($iss % 100 == 0) {
                 $access = $romeInterface->authetification($scope);
             }
             sleep(1);
@@ -92,6 +93,21 @@ class BriquesCompetencesController extends AbstractController
                     ];
                 }, $data["groupesSavoirs"]);
                 $result = array_merge($resultats, $resultatssavoir);
+                $comrome = $briquesCompetencesRepository->findBy(["rome"=> $metier]);
+                $datalist = [];
+                for ($m=0; $m < count($result); $m++) {
+                    $datasssss = $result[$m]["competancelist"];
+                    for ($s=0; $s < count($datasssss); $s++) { 
+                        $datalist[]= ["libel" => $datasssss[$s]["libelle"], "comp_gb_titre"=> $result[$m]["comp_gb_titre"], "comp_gb_categorie"=> $result[$m]["comp_gb_categorie"]];
+                    }
+                }
+                
+                if (count($comrome) == count($datalist)) continue;
+                if ((count($comrome) > count($datalist)) or (count($comrome) < count($datalist))) {
+                    foreach ($comrome as $key) {
+                        $briquesCompetencesRepository->remove($key);
+                    }
+                }
                 for ($i=0; $i < count($result); $i++) { 
                     $key = $result[$i];
                     $comptanceglobal = array_filter($listcompetanceglobal, function ($entiteRome) use ($key) {
@@ -109,9 +125,26 @@ class BriquesCompetencesController extends AbstractController
                             $brique->setBrqCompTitre($listcompetance[$m]["libelle"]);
                             $briquesCompetencesRepository->add($brique);
                         }
+                    } else {
+                        $comptanceglobal = new CompetencesGlobales();
+                        $comptanceglobal->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                        $comptanceglobal->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                        $comptanceglobal->setCompGbCategorie($key["comp_gb_categorie"]);
+                        $comptanceglobal->setCompGbTitre($key["comp_gb_titre"]);
+                        $competencesGlobalesRepository->add($comptanceglobal);
+                        $listcompetanceglobal = $competencesGlobalesRepository->findAll();
+                        for ($ss=0; $ss < count($key["competancelist"]); $ss++) { 
+                            $brique = new BriquesCompetences;
+                            $brique->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                            $brique->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                            $brique->setRome($metier);
+                            $brique->setCompGb($comptanceglobal);
+                            $brique->setBrqCompTitre($key["competancelist"][$ss]["libelle"]);
+                            $briquesCompetencesRepository->add($brique);
+                        }
                     }
                 }
-                $i = $i+1;
+                $iss = $iss+1;
             }
         }
         dd($briquesCompetencesRepository->findAll());
