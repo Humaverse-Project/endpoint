@@ -118,8 +118,8 @@ class BriquesCompetencesController extends AbstractController
                         $listcompetance = $result[$i]["competancelist"];
                         for ($m=0; $m < count($listcompetance); $m++) {
                             $brique = new BriquesCompetences;
-                            $brique->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                            $brique->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                            $brique->setCreatedAt(new \DateTimeImmutable('@' . strtotime('now')));
+                            $brique->setUpdatedAt(new \DateTimeImmutable('@' . strtotime('now')));
                             $brique->setRome($metier);
                             $brique->setCompGb($comptanceglobal[0]);
                             $brique->setBrqCompTitre($listcompetance[$m]["libelle"]);
@@ -142,6 +142,7 @@ class BriquesCompetencesController extends AbstractController
                             $brique->setBrqCompTitre($key["competancelist"][$ss]["libelle"]);
                             $briquesCompetencesRepository->add($brique);
                         }
+                    }
                     }
                 }
                 $iss = $iss+1;
