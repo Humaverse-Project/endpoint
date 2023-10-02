@@ -30,11 +30,6 @@ class FichesCompetences
     private $fic_comp_competences;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Accreditation::class)
-     */
-    private $fic_comp_accreditations;
-
-    /**
      * @ORM\Column(type="float")
      */
     private $fic_comp_version;
@@ -64,10 +59,16 @@ class FichesCompetences
      */
     private $appelation;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Accreditation::class, cascade={"persist"})
+     */
+    private $accreditation;
+
     public function __construct()
     {
         $this->fic_comp_competences = new ArrayCollection();
         $this->briquesCompetencesNiveaux = new ArrayCollection();
+        $this->accreditation = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -107,18 +108,6 @@ class FichesCompetences
     public function removeFicCompCompetence(BriquesCompetences $ficCompCompetence): self
     {
         $this->fic_comp_competences->removeElement($ficCompCompetence);
-
-        return $this;
-    }
-
-    public function getFicCompAccreditations(): ?Accreditation
-    {
-        return $this->fic_comp_accreditations;
-    }
-
-    public function setFicCompAccreditations(?Accreditation $fic_comp_accreditations): self
-    {
-        $this->fic_comp_accreditations = $fic_comp_accreditations;
 
         return $this;
     }
@@ -221,6 +210,30 @@ class FichesCompetences
     public function setAppelation(?Emploi $appelation): self
     {
         $this->appelation = $appelation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Accreditation>
+     */
+    public function getAccreditation(): Collection
+    {
+        return $this->accreditation;
+    }
+
+    public function addAccreditation(Accreditation $accreditation): self
+    {
+        if (!$this->accreditation->contains($accreditation)) {
+            $this->accreditation[] = $accreditation;
+        }
+
+        return $this;
+    }
+
+    public function removeAccreditation(Accreditation $accreditation): self
+    {
+        $this->accreditation->removeElement($accreditation);
 
         return $this;
     }

@@ -27,7 +27,7 @@ class FichesCompetencesController extends AbstractController
     /**
      * @Route("/", name="app_fiches_competences_index", methods={"GET"})
      */
-    public function index(FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository): JsonResponse
+    public function index(FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository, CompetencesGlobalesRepository $competencesGlobalesRepository): JsonResponse
     {
         $allRomes = $romeRepository->findAll();
         $data["rome"] = [];
@@ -35,61 +35,91 @@ class FichesCompetencesController extends AbstractController
             $data["rome"][] = $rome->_toArray();
         }
         $data["fiche_competance"] = $fichesCompetencesRepository->findAll();
+        $data["fiche_competance_global"] = $competencesGlobalesRepository->findAll();
         return $this->json($data);
     }
 
     /**
      * @Route("/new", name="app_fiches_competences_new", methods={"GET", "POST"})
      */
-    public function new(Request $request, FichesCompetencesRepository $fichesCompetencesRepository, AccreditationRepository $accreditationRepository, BriquesCompetencesRepository $briquesCompetencesRepository, BriquesCompetencesNiveauRepository $briquesCompetencesNiveau, RomeRepository $romeRepository, EmploiRepository $emploiRepository): JsonResponse
+    public function new(Request $request, FichesCompetencesRepository $fichesCompetencesRepository, BriquesCompetencesRepository $briquesCompetencesRepository, BriquesCompetencesNiveauRepository $briquesCompetencesNiveau, RomeRepository $romeRepository, EmploiRepository $emploiRepository, CompetencesGlobalesRepository $competencesGlobalesRepository): JsonResponse
     {
-        $emplois = $emploiRepository->find((int)$request->request->get("emploisid"));
-        if ($emplois) {
-            $actuel = $fichesCompetencesRepository->findBy(["appelation"=>$emplois], ['id' => 'DESC']);
+        $appelationlist = [];
+        if ($request->request->get("applicationall") == "ok") {
+            $emploisdata = $emploiRepository->findBy(["rome"=> (int)$request->request->get("romeid")]);
+            foreach ($emploisdata as $key) {
+                $appelationlist[] = $key;
+            }
+        } else {
+            $emplois = $emploiRepository->find((int)$request->request->get("emploisid"));
+            $appelationlist[] = $emplois;
+        }
+        for ($kl=0; $kl < count($appelationlist); $kl++) { 
+            $actuel = $fichesCompetencesRepository->findBy(["appelation"=>$appelationlist[$kl]], ['id' => 'DESC']);
             $version = 1.0;
             if (!empty($actuel)) {
                 $actuel = $actuel[0];
                 $version = (float)$actuel->getFicCompVersion()+0.1;
+                $fichesCompetence = $actuel;
+            } else {
+                $fichesCompetence = new FichesCompetences();
+                $fichesCompetence->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
             }
-            $acreditation = $accreditationRepository->find((int)$request->request->get("accreid"));
-            if (!$acreditation) {
-                $acreditation = new Accreditation();
-                $acreditation->setAccreTitre($request->request->get("accretitre"));
-                $acreditation->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                $acreditation->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-                $accreditationRepository->add($acreditation);
-            }
-            $fichesCompetence = new FichesCompetences();
-            $fichesCompetence->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-            $fichesCompetence->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-            $fichesCompetence->setFicCompTitreEmploi($request->request->get("titre"));
             $fichesCompetence->setFicCompVersion($version);
-            $fichesCompetence->setAppelation($emplois);
-            $fichesCompetence->setFicCompAccreditations($acreditation);
+            $fichesCompetence->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $fichesCompetence->setFicCompTitreEmploi($appelationlist[$kl]->getEmploiTitre());
+            
             $briquelist = $request->request->all("brique");
             $niveaulist = $request->request->all("niveau");
+            $acreditationlist = $request->request->all("accreditationname");
+            $accreditationvalue = $request->request->all("accreditationvalue");
+            for ($i=0; $i < count($acreditationlist); $i++) { 
+                $dataacc = $fichesCompetence->getAccreditation();
+                $unacc = $acreditationlist[$i];
+                $testacreditation = array_filter($dataacc->toArray(), function ($entiteAccreditation) use ($unacc) {
+                    return ($entiteAccreditation->getAccreTitre() === $unacc);
+                });
+                if (count($testacreditation) == 0) {
+                    $acreditation = new Accreditation();
+                    $acreditation->setAccreTitre($acreditationlist[$i]);
+                    $acreditation->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                }
+                else {
+                    rsort($testacreditation);
+                    $acreditation = $testacreditation[0];
+                }
+                $acreditation->setValue($accreditationvalue[$i]);
+                $acreditation->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $fichesCompetence->addAccreditation($acreditation);
+            }
             for ($i=0; $i < count($briquelist); $i++) { 
                 $brique = $briquesCompetencesRepository->find($briquelist[$i]);
                 $fichesCompetence->addFicCompCompetence($brique);
             }
+            $fichesCompetence->setAppelation($appelationlist[$kl]);
             $fichesCompetencesRepository->add($fichesCompetence);
             for ($i=0; $i < count($niveaulist); $i++) { 
                 $brique = $briquesCompetencesRepository->find((int)$briquelist[$i]);
-                $niveau = new BriquesCompetencesNiveau();
+                $niveauexistlist = $briquesCompetencesNiveau->findBy(["fichescompetances"=> $fichesCompetence, "briquescompetances"=> $brique]);
+                if (empty($niveauexistlist)) {
+                    $niveau = new BriquesCompetencesNiveau();
+                    $niveau->setFichescompetances($fichesCompetence);
+                    $niveau->setBriquescompetances($brique);
+                } else {
+                    $niveau = $niveauexistlist[0];
+                }
                 $niveau->setNiveau((int)$niveaulist[$i]);
-                $niveau->setFichescompetances($fichesCompetence);
-                $niveau->setBriquescompetances($brique);
                 $briquesCompetencesNiveau->add($niveau);
             }
+            
         }
-        
         $data["fiche_competance"] = $fichesCompetencesRepository->findAll();
         $data["rome"] = [];
         $allRomes = $romeRepository->findAll();
         foreach ($allRomes as $rome) {
             $data["rome"][] = $rome->_toArray();
         }
-        // $data["compglobal"] = $competencesGlobalesRepository->findAll();
+        $data["fiche_competance_global"] = $competencesGlobalesRepository->findAll();
         return $this->json($data);
     }
 
