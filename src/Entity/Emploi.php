@@ -68,8 +68,13 @@ class Emploi
 
     // public function getRome(): ?Rome
     // {
-    //     return $this->rome;
+    //     return $this->rome->_toArray();
     // }
+
+    public function getRomeData(): array
+    {
+        return $this->rome->_toArray();
+    }
 
     public function setRome(?Rome $rome): self
     {

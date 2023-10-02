@@ -32,6 +32,11 @@ class Accreditation
      */
     private $updated_at;
 
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $value;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -72,4 +77,17 @@ class Accreditation
 
         return $this;
     }
+
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
+    public function setValue(?string $value): self
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
 }
