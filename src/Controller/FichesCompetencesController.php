@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\FichesCompetences;
 use App\Entity\Accreditation;
+use App\Entity\BriquesCompetences;
 use App\Entity\BriquesCompetencesNiveau;
+use App\Entity\CompetencesGlobales;
 use App\Form\FichesCompetencesType;
 use App\Repository\FichesCompetencesRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Repository\AccreditationRepository;
 use App\Repository\BriquesCompetencesNiveauRepository;
 use App\Repository\CompetencesGlobalesRepository;
 use App\Repository\BriquesCompetencesRepository;
@@ -96,6 +97,31 @@ class FichesCompetencesController extends AbstractController
                 $brique = $briquesCompetencesRepository->find($briquelist[$i]);
                 $fichesCompetence->addFicCompCompetence($brique);
             }
+            $globaltitrelist = $request->request->all("globaltitre");
+            $globalidlist = $request->request->all("globalid");
+            $compettitrelist = $request->request->all("compettitre");
+            $globalcategorielist = $request->request->all("globalcategorie");
+            $metier = $romeRepository->find((int)$request->request->get("romeid"));
+            for ($i=0; $i < count($globaltitrelist); $i++) { 
+                if ($globalidlist[$i] == "nouveau") {
+                    $compglob = new CompetencesGlobales();
+                    $compglob->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $compglob->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                    $compglob->setCompGbCategorie($globalcategorielist[$i]);
+                    $compglob->setCompGbTitre($globaltitrelist[$i]);
+                    $competencesGlobalesRepository->add($compglob);
+                } else {
+                    $compglob = $competencesGlobalesRepository->find((int)$globalidlist[$i]);
+                }
+                $brique = new BriquesCompetences();
+                $brique->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $brique->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $brique->setRome($metier);
+                $brique->setCompGb($compglob);
+                $brique->setBrqCompTitre($compettitrelist[$i]);
+                $briquesCompetencesRepository->add($brique);
+                $fichesCompetence->addFicCompCompetence($brique);
+            }
             $fichesCompetence->setAppelation($appelationlist[$kl]);
             $fichesCompetencesRepository->add($fichesCompetence);
             for ($i=0; $i < count($niveaulist); $i++) { 
@@ -111,7 +137,21 @@ class FichesCompetencesController extends AbstractController
                 $niveau->setNiveau((int)$niveaulist[$i]);
                 $briquesCompetencesNiveau->add($niveau);
             }
-            
+            $niveaulistnouveau = $request->request->all("niveauvaovao");
+            for ($i=0; $i < count($niveaulistnouveau); $i++) { 
+                $briquelist = $briquesCompetencesRepository->findBy(["brq_comp_titre"=> $compettitrelist[$i]]);
+                $brique = $briquelist[0];
+                $niveauexistlist = $briquesCompetencesNiveau->findBy(["fichescompetances"=> $fichesCompetence, "briquescompetances"=> $brique]);
+                if (empty($niveauexistlist)) {
+                    $niveau = new BriquesCompetencesNiveau();
+                    $niveau->setFichescompetances($fichesCompetence);
+                    $niveau->setBriquescompetances($brique);
+                } else {
+                    $niveau = $niveauexistlist[0];
+                }
+                $niveau->setNiveau((int)$niveaulistnouveau[$i]);
+                $briquesCompetencesNiveau->add($niveau);
+            }
         }
         $data["fiche_competance"] = $fichesCompetencesRepository->findAll();
         $data["rome"] = [];
@@ -131,6 +171,14 @@ class FichesCompetencesController extends AbstractController
         return $this->render('fiches_competences/show.html.twig', [
             'fiches_competence' => $fichesCompetence,
         ]);
+    }
+
+    /**
+     * @Route("/detail", name="app_fiches_competences_detail", methods={"GET", "POST"})
+     */
+    public function detail(Request $request, FichesCompetencesRepository $fichesCompetencesRepository): JsonResponse
+    {
+        return $this->json($fichesCompetencesRepository->find((int)$request->request->get("code")));
     }
 
     /**
