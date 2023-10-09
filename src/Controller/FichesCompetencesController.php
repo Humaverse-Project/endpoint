@@ -201,14 +201,22 @@ class FichesCompetencesController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_fiches_competences_delete", methods={"POST"})
+     * @Route("/delete/{id}", name="app_fiches_competences_delete", methods={"POST"})
      */
-    public function delete(Request $request, FichesCompetences $fichesCompetence, FichesCompetencesRepository $fichesCompetencesRepository): Response
+    public function delete(FichesCompetences $fichesCompetence, FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository, CompetencesGlobalesRepository $competencesGlobalesRepository, BriquesCompetencesNiveauRepository $briquesCompetencesNiveauRepository): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$fichesCompetence->getId(), $request->request->get('_token'))) {
-            $fichesCompetencesRepository->remove($fichesCompetence);
+        $niveauexistlist = $briquesCompetencesNiveauRepository->findBy(["fichescompetances"=> $fichesCompetence]);
+        foreach ($niveauexistlist as $key) {
+            $briquesCompetencesNiveauRepository->remove($key);
         }
-
-        return $this->redirectToRoute('app_fiches_competences_index', [], Response::HTTP_SEE_OTHER);
+        $fichesCompetencesRepository->remove($fichesCompetence);
+        $data["fiche_competance"] = $fichesCompetencesRepository->findAll();
+        $data["rome"] = [];
+        $allRomes = $romeRepository->findAll();
+        foreach ($allRomes as $rome) {
+            $data["rome"][] = $rome->_toArray();
+        }
+        $data["fiche_competance_global"] = $competencesGlobalesRepository->findAll();
+        return $this->json($data);
     }
 }
