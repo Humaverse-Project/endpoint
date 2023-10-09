@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\FichesPostes;
+use App\Repository\BriquesContexteRepository;
+use App\Repository\EmploiRepository;
 use App\Repository\FichesCompetencesRepository;
 use App\Repository\FichesPostesRepository;
 use App\Repository\RomeRepository;
@@ -21,6 +23,29 @@ class FichesPostesController extends AbstractController
      * @Route("/", name="app_fiches_postes_index", methods={"GET"})
      */
     public function index(FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, FichesCompetencesRepository $fichesCompetencesRepository): JsonResponse
+    {
+        $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
+        $data["postelist"] = [];
+        foreach ($donnees as $post) {
+            $data["postelist"][] = $post->_getListPostData();
+        }
+        $allRomes = $romeRepository->findAll();
+        $data["rome"] = [];
+        foreach ($allRomes as $rome) {
+            $data["rome"][] = $rome->_toArray();
+        }
+        $competance = $fichesCompetencesRepository->findBy(["entreprise"=> NULL]);
+        $data["competance"] = [];
+        foreach ($competance as $comp) {
+            $data["competance"][] = $comp->_getListCompetance();
+        }
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/metier", name="app_fiches_postes_metier", methods={"GET"})
+     */
+    public function metier(FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, FichesCompetencesRepository $fichesCompetencesRepository): JsonResponse
     {
         $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
         $data["postelist"] = [];
@@ -69,5 +94,24 @@ class FichesPostesController extends AbstractController
             $data["postelist"][] = $post->_getListPostData();
         }
         return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/detail", name="app_poste_rome_detail", methods={"POST"})
+     */
+    public function detail( Request $request, RomeRepository $romeRepository, EmploiRepository $emploiRepository, BriquesContexteRepository $briquesContexteRepository, FichesCompetencesRepository $fichesCompetencesRepository ): JsonResponse
+    {
+        $rome = $romeRepository->findBy(["rome_coderome"=> $request->request->get("code")]);
+        $data["rome"] = $rome[0]->_toArray();
+        $data["appelation"] = $emploiRepository->findBy(["rome"=> $rome[0]]);
+        $data["briquecompetance"] = [];
+        foreach ($data["appelation"] as $key) {
+            $datass = $fichesCompetencesRepository->findBy(["appelation"=> $key]);
+            if (!empty($datass)) {
+                $data["briquecompetance"][] = $datass[0];
+            }
+        }
+        $data["briquecontexte"] = $briquesContexteRepository->findBy(["rome"=> $rome[0]]);
+        return $this->json($data);
     }
 }

@@ -25,6 +25,21 @@ use App\Repository\RomeRepository;
 class FichesCompetencesController extends AbstractController
 {
     /**
+     * @Route("/", name="app_fiches_competences_index", methods={"GET"})
+     */
+    public function index(FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository, CompetencesGlobalesRepository $competencesGlobalesRepository): JsonResponse
+    {
+        $allRomes = $romeRepository->findAll();
+        $data["rome"] = [];
+        foreach ($allRomes as $rome) {
+            $data["rome"][] = $rome->_toArray();
+        }
+        $data["fiche_competance"] = $fichesCompetencesRepository->findAll();
+        $data["fiche_competance_global"] = $competencesGlobalesRepository->findAll();
+        return $this->json($data);
+    }
+
+    /**
      * @Route("/new", name="app_fiches_competences_new", methods={"GET", "POST"})
      */
     public function new(Request $request, FichesCompetencesRepository $fichesCompetencesRepository, BriquesCompetencesRepository $briquesCompetencesRepository, BriquesCompetencesNiveauRepository $briquesCompetencesNiveau, RomeRepository $romeRepository, EmploiRepository $emploiRepository, CompetencesGlobalesRepository $competencesGlobalesRepository): JsonResponse
