@@ -7,7 +7,6 @@ use App\Entity\Accreditation;
 use App\Entity\BriquesCompetences;
 use App\Entity\BriquesCompetencesNiveau;
 use App\Entity\CompetencesGlobales;
-use App\Form\FichesCompetencesType;
 use App\Repository\FichesCompetencesRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -164,16 +163,6 @@ class FichesCompetencesController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_fiches_competences_show", methods={"GET"})
-     */
-    public function show(FichesCompetences $fichesCompetence): Response
-    {
-        return $this->render('fiches_competences/show.html.twig', [
-            'fiches_competence' => $fichesCompetence,
-        ]);
-    }
-
-    /**
      * @Route("/detail", name="app_fiches_competences_detail", methods={"GET", "POST"})
      */
     public function detail(Request $request, FichesCompetencesRepository $fichesCompetencesRepository): JsonResponse
@@ -182,33 +171,22 @@ class FichesCompetencesController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="app_fiches_competences_edit", methods={"GET", "POST"})
+     * @Route("/delete/{id}", name="app_fiches_competences_delete", methods={"POST"})
      */
-    public function edit(Request $request, FichesCompetences $fichesCompetence, FichesCompetencesRepository $fichesCompetencesRepository): Response
+    public function delete(FichesCompetences $fichesCompetence, FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository, CompetencesGlobalesRepository $competencesGlobalesRepository, BriquesCompetencesNiveauRepository $briquesCompetencesNiveauRepository): Response
     {
-        $form = $this->createForm(FichesCompetencesType::class, $fichesCompetence);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $fichesCompetencesRepository->add($fichesCompetence);
-            return $this->redirectToRoute('app_fiches_competences_index', [], Response::HTTP_SEE_OTHER);
+        $niveauexistlist = $briquesCompetencesNiveauRepository->findBy(["fichescompetances"=> $fichesCompetence]);
+        foreach ($niveauexistlist as $key) {
+            $briquesCompetencesNiveauRepository->remove($key);
         }
-
-        return $this->renderForm('fiches_competences/edit.html.twig', [
-            'fiches_competence' => $fichesCompetence,
-            'form' => $form,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="app_fiches_competences_delete", methods={"POST"})
-     */
-    public function delete(Request $request, FichesCompetences $fichesCompetence, FichesCompetencesRepository $fichesCompetencesRepository): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$fichesCompetence->getId(), $request->request->get('_token'))) {
-            $fichesCompetencesRepository->remove($fichesCompetence);
+        $fichesCompetencesRepository->remove($fichesCompetence);
+        $data["fiche_competance"] = $fichesCompetencesRepository->findAll();
+        $data["rome"] = [];
+        $allRomes = $romeRepository->findAll();
+        foreach ($allRomes as $rome) {
+            $data["rome"][] = $rome->_toArray();
         }
-
-        return $this->redirectToRoute('app_fiches_competences_index', [], Response::HTTP_SEE_OTHER);
+        $data["fiche_competance_global"] = $competencesGlobalesRepository->findAll();
+        return $this->json($data);
     }
 }

@@ -251,17 +251,17 @@ class Rome
         return $this;
     }
 
-    public function removeEmploi(Emploi $emploi): self
-    {
-        if ($this->emplois->removeElement($emploi)) {
-            // set the owning side to null (unless already changed)
-            if ($emploi->getRome() === $this) {
-                $emploi->setRome(null);
-            }
-        }
+    // public function removeEmploi(Emploi $emploi): self
+    // {
+    //     if ($this->emplois->removeElement($emploi)) {
+    //         // set the owning side to null (unless already changed)
+    //         if ($emploi->getRome() === $this) {
+    //             $emploi->setRome(null);
+    //         }
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
     public function _toArray(): array
     {
         $formattedData = [
