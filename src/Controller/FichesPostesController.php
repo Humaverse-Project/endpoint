@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\FichesPostes;
-use App\Form\FichesPostesType;
 use App\Repository\FichesCompetencesRepository;
 use App\Repository\FichesPostesRepository;
 use App\Repository\RomeRepository;
@@ -70,46 +69,5 @@ class FichesPostesController extends AbstractController
             $data["postelist"][] = $post->_getListPostData();
         }
         return new JsonResponse($data);
-    }
-
-    /**
-     * @Route("/{id}", name="app_fiches_postes_show", methods={"GET"})
-     */
-    public function show(FichesPostes $fichesPoste): Response
-    {
-        return $this->render('fiches_postes/show.html.twig', [
-            'fiches_poste' => $fichesPoste,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="app_fiches_postes_edit", methods={"GET", "POST"})
-     */
-    public function edit(Request $request, FichesPostes $fichesPoste, FichesPostesRepository $fichesPostesRepository): Response
-    {
-        $form = $this->createForm(FichesPostesType::class, $fichesPoste);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $fichesPostesRepository->add($fichesPoste);
-            return $this->redirectToRoute('app_fiches_postes_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('fiches_postes/edit.html.twig', [
-            'fiches_poste' => $fichesPoste,
-            'form' => $form,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="app_fiches_postes_delete", methods={"POST"})
-     */
-    public function delete(Request $request, FichesPostes $fichesPoste, FichesPostesRepository $fichesPostesRepository): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$fichesPoste->getId(), $request->request->get('_token'))) {
-            $fichesPostesRepository->remove($fichesPoste);
-        }
-
-        return $this->redirectToRoute('app_fiches_postes_index', [], Response::HTTP_SEE_OTHER);
     }
 }

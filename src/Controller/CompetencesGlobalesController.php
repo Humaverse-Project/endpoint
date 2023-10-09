@@ -2,12 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\CompetencesGlobales;
-use App\Form\CompetencesGlobalesType;
 use App\Repository\CompetencesGlobalesRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\ApiRequest\RomeInterface;
 use App\Repository\RomeRepository;
@@ -18,36 +14,6 @@ use App\Services\Helpers\ArrayHelpers;
  */
 class CompetencesGlobalesController extends AbstractController
 {
-    /**
-     * @Route("/", name="app_competences_globales_index", methods={"GET"})
-     */
-    public function index(CompetencesGlobalesRepository $competencesGlobalesRepository): Response
-    {
-        return $this->render('competences_globales/index.html.twig', [
-            'competences_globales' => $competencesGlobalesRepository->findAll(),
-        ]);
-    }
-
-    /**
-     * @Route("/new", name="app_competences_globales_new", methods={"GET", "POST"})
-     */
-    public function new(Request $request, CompetencesGlobalesRepository $competencesGlobalesRepository): Response
-    {
-        $competencesGlobale = new CompetencesGlobales();
-        $form = $this->createForm(CompetencesGlobalesType::class, $competencesGlobale);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $competencesGlobalesRepository->add($competencesGlobale);
-            return $this->redirectToRoute('app_competences_globales_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('competences_globales/new.html.twig', [
-            'competences_globale' => $competencesGlobale,
-            'form' => $form,
-        ]);
-    }
-
     /**
      * @Route("/synchrome", name="app_competences_globales_synchrome", methods={"GET"})
      */
@@ -106,45 +72,5 @@ class CompetencesGlobalesController extends AbstractController
             }
         }
         dd("terminer");
-    }
-    /**
-     * @Route("/{id}", name="app_competences_globales_show", methods={"GET"})
-     */
-    public function show(CompetencesGlobales $competencesGlobale): Response
-    {
-        return $this->render('competences_globales/show.html.twig', [
-            'competences_globale' => $competencesGlobale,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="app_competences_globales_edit", methods={"GET", "POST"})
-     */
-    public function edit(Request $request, CompetencesGlobales $competencesGlobale, CompetencesGlobalesRepository $competencesGlobalesRepository): Response
-    {
-        $form = $this->createForm(CompetencesGlobalesType::class, $competencesGlobale);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $competencesGlobalesRepository->add($competencesGlobale);
-            return $this->redirectToRoute('app_competences_globales_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('competences_globales/edit.html.twig', [
-            'competences_globale' => $competencesGlobale,
-            'form' => $form,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="app_competences_globales_delete", methods={"POST"})
-     */
-    public function delete(Request $request, CompetencesGlobales $competencesGlobale, CompetencesGlobalesRepository $competencesGlobalesRepository): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$competencesGlobale->getId(), $request->request->get('_token'))) {
-            $competencesGlobalesRepository->remove($competencesGlobale);
-        }
-
-        return $this->redirectToRoute('app_competences_globales_index', [], Response::HTTP_SEE_OTHER);
     }
 }

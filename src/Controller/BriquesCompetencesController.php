@@ -4,11 +4,9 @@ namespace App\Controller;
 
 use App\Entity\BriquesCompetences;
 use App\Entity\CompetencesGlobales;
-use App\Form\BriquesCompetencesType;
 use App\Repository\BriquesCompetencesRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\RomeRepository;
 use App\Repository\CompetencesGlobalesRepository;
@@ -20,36 +18,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class BriquesCompetencesController extends AbstractController
 {
-    /**
-     * @Route("/", name="app_briques_competences_index", methods={"GET"})
-     */
-    public function index(BriquesCompetencesRepository $briquesCompetencesRepository): Response
-    {
-        return $this->render('briques_competences/index.html.twig', [
-            'briques_competences' => $briquesCompetencesRepository->findAll(),
-        ]);
-    }
-
-    /**
-     * @Route("/new", name="app_briques_competences_new", methods={"GET", "POST"})
-     */
-    public function new(Request $request, BriquesCompetencesRepository $briquesCompetencesRepository): Response
-    {
-        $briquesCompetence = new BriquesCompetences();
-        $form = $this->createForm(BriquesCompetencesType::class, $briquesCompetence);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $briquesCompetencesRepository->add($briquesCompetence);
-            return $this->redirectToRoute('app_briques_competences_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('briques_competences/new.html.twig', [
-            'briques_competence' => $briquesCompetence,
-            'form' => $form,
-        ]);
-    }
-
     /**
      * @Route("/synchrome", name="app_briques_competences_synchrome", methods={"GET", "POST"})
      */
@@ -156,46 +124,5 @@ class BriquesCompetencesController extends AbstractController
     {
         $competance = $competencesGlobalesRepository->find((int)$request->request->get("categorie_id"));
         return $this->json($briquesCompetencesRepository->findBy(["comp_gb"=>$competance]));
-    }
-
-    /**
-     * @Route("/{id}", name="app_briques_competences_show", methods={"GET"})
-     */
-    public function show(BriquesCompetences $briquesCompetence): Response
-    {
-        return $this->render('briques_competences/show.html.twig', [
-            'briques_competence' => $briquesCompetence,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="app_briques_competences_edit", methods={"GET", "POST"})
-     */
-    public function edit(Request $request, BriquesCompetences $briquesCompetence, BriquesCompetencesRepository $briquesCompetencesRepository): Response
-    {
-        $form = $this->createForm(BriquesCompetencesType::class, $briquesCompetence);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $briquesCompetencesRepository->add($briquesCompetence);
-            return $this->redirectToRoute('app_briques_competences_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('briques_competences/edit.html.twig', [
-            'briques_competence' => $briquesCompetence,
-            'form' => $form,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="app_briques_competences_delete", methods={"POST"})
-     */
-    public function delete(Request $request, BriquesCompetences $briquesCompetence, BriquesCompetencesRepository $briquesCompetencesRepository): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$briquesCompetence->getId(), $request->request->get('_token'))) {
-            $briquesCompetencesRepository->remove($briquesCompetence);
-        }
-
-        return $this->redirectToRoute('app_briques_competences_index', [], Response::HTTP_SEE_OTHER);
     }
 }

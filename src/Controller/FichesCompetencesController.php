@@ -7,7 +7,6 @@ use App\Entity\Accreditation;
 use App\Entity\BriquesCompetences;
 use App\Entity\BriquesCompetencesNiveau;
 use App\Entity\CompetencesGlobales;
-use App\Form\FichesCompetencesType;
 use App\Repository\FichesCompetencesRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,21 +24,6 @@ use App\Repository\RomeRepository;
  */
 class FichesCompetencesController extends AbstractController
 {
-    /**
-     * @Route("/", name="app_fiches_competences_index", methods={"GET"})
-     */
-    public function index(FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository, CompetencesGlobalesRepository $competencesGlobalesRepository): JsonResponse
-    {
-        $allRomes = $romeRepository->findAll();
-        $data["rome"] = [];
-        foreach ($allRomes as $rome) {
-            $data["rome"][] = $rome->_toArray();
-        }
-        $data["fiche_competance"] = $fichesCompetencesRepository->findAll();
-        $data["fiche_competance_global"] = $competencesGlobalesRepository->findAll();
-        return $this->json($data);
-    }
-
     /**
      * @Route("/new", name="app_fiches_competences_new", methods={"GET", "POST"})
      */
@@ -164,40 +148,11 @@ class FichesCompetencesController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_fiches_competences_show", methods={"GET"})
-     */
-    public function show(FichesCompetences $fichesCompetence): Response
-    {
-        return $this->render('fiches_competences/show.html.twig', [
-            'fiches_competence' => $fichesCompetence,
-        ]);
-    }
-
-    /**
      * @Route("/detail", name="app_fiches_competences_detail", methods={"GET", "POST"})
      */
     public function detail(Request $request, FichesCompetencesRepository $fichesCompetencesRepository): JsonResponse
     {
         return $this->json($fichesCompetencesRepository->find((int)$request->request->get("code")));
-    }
-
-    /**
-     * @Route("/{id}/edit", name="app_fiches_competences_edit", methods={"GET", "POST"})
-     */
-    public function edit(Request $request, FichesCompetences $fichesCompetence, FichesCompetencesRepository $fichesCompetencesRepository): Response
-    {
-        $form = $this->createForm(FichesCompetencesType::class, $fichesCompetence);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $fichesCompetencesRepository->add($fichesCompetence);
-            return $this->redirectToRoute('app_fiches_competences_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('fiches_competences/edit.html.twig', [
-            'fiches_competence' => $fichesCompetence,
-            'form' => $form,
-        ]);
     }
 
     /**

@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\BriquesCompetences;
 use App\Entity\Rome;
-use App\Form\RomeType;
 use App\Repository\BriquesCompetencesRepository;
 use App\Repository\BriquesContexteRepository;
 use App\Repository\EmploiRepository;
@@ -21,16 +19,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class RomeController extends AbstractController
 {
-    /**
-     * @Route("/", name="app_rome_index", methods={"GET"})
-     */
-    public function index(RomeRepository $romeRepository): Response
-    {
-        return $this->render('rome/index.html.twig', [
-            'romes' => $romeRepository->findAll(),
-        ]);
-    }
-
     /**
      * @Route("/list", name="app_rome_list", methods={"GET"})
      */
@@ -109,36 +97,6 @@ class RomeController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="app_rome_new", methods={"GET", "POST"})
-     */
-    public function new(Request $request, RomeRepository $romeRepository): Response
-    {
-        $rome = new Rome();
-        $form = $this->createForm(RomeType::class, $rome);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $romeRepository->add($rome);
-            return $this->redirectToRoute('app_rome_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('rome/new.html.twig', [
-            'rome' => $rome,
-            'form' => $form,
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="app_rome_show", methods={"GET"})
-     */
-    public function show(Rome $rome): Response
-    {
-        return $this->render('rome/show.html.twig', [
-            'rome' => $rome,
-        ]);
-    }
-
-    /**
      * @Route("/{id}/edit", name="app_rome_edit", methods={"GET", "POST"})
      */
     public function edit(Request $request, Rome $rome, RomeRepository $romeRepository): Response
@@ -149,17 +107,5 @@ class RomeController extends AbstractController
         $rome->setRomeTitre($request->request->get("nom"));
         $romeRepository->add($rome);
         return $this->redirectToRoute('app_rome_list', [], Response::HTTP_SEE_OTHER);
-    }
-
-    /**
-     * @Route("/{id}", name="app_rome_delete", methods={"POST"})
-     */
-    public function delete(Request $request, Rome $rome, RomeRepository $romeRepository): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$rome->getId(), $request->request->get('_token'))) {
-            $romeRepository->remove($rome);
-        }
-
-        return $this->redirectToRoute('app_rome_index', [], Response::HTTP_SEE_OTHER);
     }
 }
