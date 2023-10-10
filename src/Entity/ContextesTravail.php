@@ -39,9 +39,15 @@ class ContextesTravail
      */
     private $briquesContextes;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BriquesContexteMetiers::class, mappedBy="contexte", orphanRemoval=true)
+     */
+    private $briquesContexteMetiers;
+
     public function __construct()
     {
         $this->briquesContextes = new ArrayCollection();
+        $this->briquesContexteMetiers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -109,6 +115,36 @@ class ContextesTravail
             // set the owning side to null (unless already changed)
             if ($briquesContexte->getContexte() === $this) {
                 $briquesContexte->setContexte(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BriquesContexteMetiers>
+     */
+    public function getBriquesContexteMetiers(): Collection
+    {
+        return $this->briquesContexteMetiers;
+    }
+
+    public function addBriquesContexteMetier(BriquesContexteMetiers $briquesContexteMetier): self
+    {
+        if (!$this->briquesContexteMetiers->contains($briquesContexteMetier)) {
+            $this->briquesContexteMetiers[] = $briquesContexteMetier;
+            $briquesContexteMetier->setContexte($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBriquesContexteMetier(BriquesContexteMetiers $briquesContexteMetier): self
+    {
+        if ($this->briquesContexteMetiers->removeElement($briquesContexteMetier)) {
+            // set the owning side to null (unless already changed)
+            if ($briquesContexteMetier->getContexte() === $this) {
+                $briquesContexteMetier->setContexte(null);
             }
         }
 

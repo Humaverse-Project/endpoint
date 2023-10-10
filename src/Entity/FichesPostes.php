@@ -72,36 +72,12 @@ class FichesPostes
      */
     private $fiches_postes_entreprise;
 
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $fiches_postes_activite = [];
-
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $fiches_postes_definition = [];
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $fiches_postes_agrement;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $conditions_generales;
 
     /**
      * @ORM\ManyToMany(targetEntity=Formation::class)
      * @ORM\JoinTable(name="fiches_postes_formations")
      */
     private $formations;
-
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
-    private $instructions = [];
 
     /**
      * @ORM\ManyToMany(targetEntity=ParcoursProfessionnel::class)
@@ -124,6 +100,36 @@ class FichesPostes
      */
     private $fiches_postes_version;
 
+    /**
+     * @ORM\OneToMany(targetEntity=BriquesContexteMetiers::class, mappedBy="fichesPostes", orphanRemoval=true)
+     */
+    private $briquesContexteMetiers;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $fiches_postes_convention;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $fiches_poste_definition;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $fiches_post_formations;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $fiches_postes_activite;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Emploi::class)
+     */
+    private $appelation;
+
     public function __construct()
     {
         $this->fiches_postes_liaison_hierarchique = new ArrayCollection();
@@ -131,6 +137,7 @@ class FichesPostes
         $this->fiches_postes_convention_collective = new ArrayCollection();
         $this->formations = new ArrayCollection();
         $this->fiches_postes_parcours_professionnel = new ArrayCollection();
+        $this->briquesContexteMetiers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -294,54 +301,6 @@ class FichesPostes
         return $this;
     }
 
-    public function getFichesPostesActivite(): ?array
-    {
-        return $this->fiches_postes_activite;
-    }
-
-    public function setFichesPostesActivite(?array $fiches_postes_activite): self
-    {
-        $this->fiches_postes_activite = $fiches_postes_activite;
-
-        return $this;
-    }
-
-    public function getFichesPostesDefinition(): ?array
-    {
-        return $this->fiches_postes_definition;
-    }
-
-    public function setFichesPostesDefinition(?array $fiches_postes_definition): self
-    {
-        $this->fiches_postes_definition = $fiches_postes_definition;
-
-        return $this;
-    }
-
-    public function getFichesPostesAgrement(): ?string
-    {
-        return $this->fiches_postes_agrement;
-    }
-
-    public function setFichesPostesAgrement(?string $fiches_postes_agrement): self
-    {
-        $this->fiches_postes_agrement = $fiches_postes_agrement;
-
-        return $this;
-    }
-
-    public function getConditionsGenerales(): ?string
-    {
-        return $this->conditions_generales;
-    }
-
-    public function setConditionsGenerales(?string $conditions_generales): self
-    {
-        $this->conditions_generales = $conditions_generales;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Formation>
      */
@@ -366,17 +325,6 @@ class FichesPostes
         return $this;
     }
 
-    public function getInstructions(): ?array
-    {
-        return $this->instructions;
-    }
-
-    public function setInstructions(?array $instructions): self
-    {
-        $this->instructions = $instructions;
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, ParcoursProfessionnel>
@@ -449,7 +397,6 @@ class FichesPostes
             'id' => $this->getId(),
             'titre' => $this->getFichesPostesTitre(),
             'createdAt'=> $this->getCreatedAt(),
-            'activite'=> $this->getFichesPostesActivite(),
             'version'=> $this->getFichesPostesVersion(),
             'fichecompetance' => [
                 "id"=> $this->getFichesPostesFicheCompetence()->getId(),
@@ -458,12 +405,9 @@ class FichesPostes
                 "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion(),
                 "briquelist" => $this->getFichesPostesFicheCompetence()->getFicCompCompetences()
             ],
+            'emplois'=> $this->getAppelation(),
             'validation'=> $this->getFichesPostesValidationAt(),
             'visa'=> $this->getFichesPostesVisaAt(),
-            'instruction'=>$this->getInstructions(),
-            'definition'=> $this->getFichesPostesDefinition(),
-            'agrement'=> $this->getFichesPostesAgrement(),
-            'condition'=> $this->getConditionsGenerales(),
             'rome' => [
                 "id"=>$this->getFichesPostesFicheRome()->getId(),
                 "codeRome"=> $this->getFichesPostesFicheRome()->getRomeCoderome(),
@@ -489,6 +433,96 @@ class FichesPostes
     public function setFichesPostesVersion(?float $fiches_postes_version): self
     {
         $this->fiches_postes_version = $fiches_postes_version;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BriquesContexteMetiers>
+     */
+    public function getBriquesContexteMetiers(): Collection
+    {
+        return $this->briquesContexteMetiers;
+    }
+
+    public function addBriquesContexteMetier(BriquesContexteMetiers $briquesContexteMetier): self
+    {
+        if (!$this->briquesContexteMetiers->contains($briquesContexteMetier)) {
+            $this->briquesContexteMetiers[] = $briquesContexteMetier;
+            $briquesContexteMetier->setFichesPostes($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBriquesContexteMetier(BriquesContexteMetiers $briquesContexteMetier): self
+    {
+        if ($this->briquesContexteMetiers->removeElement($briquesContexteMetier)) {
+            // set the owning side to null (unless already changed)
+            if ($briquesContexteMetier->getFichesPostes() === $this) {
+                $briquesContexteMetier->setFichesPostes(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getFichesPostesConvention(): ?string
+    {
+        return $this->fiches_postes_convention;
+    }
+
+    public function setFichesPostesConvention(?string $fiches_postes_convention): self
+    {
+        $this->fiches_postes_convention = $fiches_postes_convention;
+
+        return $this;
+    }
+
+    public function getFichesPosteDefinition(): ?string
+    {
+        return $this->fiches_poste_definition;
+    }
+
+    public function setFichesPosteDefinition(?string $fiches_poste_definition): self
+    {
+        $this->fiches_poste_definition = $fiches_poste_definition;
+
+        return $this;
+    }
+
+    public function getFichesPostFormations(): ?string
+    {
+        return $this->fiches_post_formations;
+    }
+
+    public function setFichesPostFormations(?string $fiches_post_formations): self
+    {
+        $this->fiches_post_formations = $fiches_post_formations;
+
+        return $this;
+    }
+
+    public function getFichesPostesActivite(): ?string
+    {
+        return $this->fiches_postes_activite;
+    }
+
+    public function setFichesPostesActivite(?string $fiches_postes_activite): self
+    {
+        $this->fiches_postes_activite = $fiches_postes_activite;
+
+        return $this;
+    }
+
+    public function getAppelation(): ?Emploi
+    {
+        return $this->appelation;
+    }
+
+    public function setAppelation(?Emploi $appelation): self
+    {
+        $this->appelation = $appelation;
 
         return $this;
     }
