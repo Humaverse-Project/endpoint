@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\BriquesContexteMetiers;
+use App\Entity\ContextesTravail;
 use App\Entity\FichesPostes;
 use App\Repository\BriquesContexteRepository;
 use App\Repository\EmploiRepository;
@@ -13,7 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use App\Repository\ContextesTravailRepository;
+use App\Repository\BriquesContexteMetiersRepository;
 /**
  * @Route("/fiches/postes")
  */
@@ -62,7 +65,7 @@ class FichesPostesController extends AbstractController
         foreach ($competance as $comp) {
             $data["competance"][] = $comp->_getListCompetance();
         }
-        return new JsonResponse($data);
+        return $this->json($data);
     }
 
     /**
@@ -73,14 +76,9 @@ class FichesPostesController extends AbstractController
         $fichesPoste = new FichesPostes();
         $competance = $fichesCompetencesRepository->find((int)$request->request->get("competanceid"));
         $rome = $romeRepository->find((int)$request->request->get("metierid"));
-        $fichesPoste->setConditionsGenerales($request->request->get("condition_general"));
-        $fichesPoste->setFichesPostesAgrement($request->request->get("agrement"));
-        $fichesPoste->setFichesPostesDefinition([$request->request->get("definition")]);
         $fichesPoste->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $fichesPoste->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $fichesPoste->setFichesPostesFicheRome($rome);
-        $fichesPoste->setFichesPostesActivite([$request->request->get("activite")]);
-        $fichesPoste->setInstructions([$request->request->get("instruction")]);
         $fichesPoste->setFichesPostesFicheCompetence($competance);
         $fichesPoste->setFichesPostesVersion((float)$request->request->get("version"));
         $fichesPoste->setFichesPostesTitre($request->request->get("titre"));
@@ -112,6 +110,127 @@ class FichesPostesController extends AbstractController
             }
         }
         $data["briquecontexte"] = $briquesContexteRepository->findBy(["rome"=> $rome[0]]);
+        return $this->json($data);
+    }
+
+    /**
+     * @Route("/newbo", name="app_fiches_postes_newbo", methods={"GET", "POST"})
+     */
+    public function newbo(Request $request, FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, FichesCompetencesRepository $fichesCompetencesRepository, ContextesTravailRepository $contextesTravailRepository, BriquesContexteMetiersRepository $briquesContexteMetiersRepository, EmploiRepository $emploiRepository): Response
+    {
+        $actuel = $fichesCompetencesRepository->find((int)$request->request->get("metierid"));
+        $appelation = $emploiRepository->find((int)$request->request->get("emploisid"));
+        $version = 1.0;
+        if ($actuel !== null) {
+            $version = (float)$actuel->getFicCompVersion()+0.1;
+            $fichesPoste = $actuel;
+        } else {
+            $fichesPoste = new FichesPostes();
+            $fichesPoste->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+        }
+        $competance = $fichesCompetencesRepository->find((int)$request->request->get("competanceid"));
+        $rome = $romeRepository->find((int)$request->request->get("romeid"));
+        $fichesPoste->setFichesPostesVersion($version);
+        $fichesPoste->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+        $fichesPoste->setFichesPostesFicheRome($rome);
+        $fichesPoste->setAppelation($appelation);
+        $fichesPoste->setFichesPostesFicheCompetence($competance);
+        $fichesPoste->setFichesPostesTitre($request->request->get("titre"));
+        $date = date("Y-m-d");
+        $fichesPoste->setFichesPostesVisaAt(new \DateTime($date));
+        $fichesPoste->setFichesPostesValidationAt(new \DateTime($date));
+        $fichesPoste->setFichesPosteDefinition($request->request->get("definition"));
+        $fichesPoste->setFichesPostesActivite($request->request->get("activite"));
+        $fichesPoste->setFichesPostesConvention($request->request->get("convention"));
+        $fichesPoste->setFichesPostFormations($request->request->get("formation"));
+        $fichesPostesRepository->add($fichesPoste);
+        $agrementlist = $request->request->all("agrement");
+        $agrementid = $request->request->all("agrementid");
+        $ficheslist = $request->request->all("ficheslist");
+        $ficheslistid = $request->request->all("ficheslistid");
+        $conditionlist = $request->request->all("conditionlist");
+        $conditionlistid = $request->request->all("conditionlistid");
+        for ($i=0; $i < count($agrementlist); $i++) { 
+            $context = $contextesTravailRepository->findBy(["ctx_trv_titre"=> "Agrément - Réglementation du métier"]);
+            if (!empty($context)) {
+                $context = $context[0];
+            } else {
+                $context = new ContextesTravail();
+                $context->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $context->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $context->setCtxTrvTitre("Agrément - Réglementation du métier");
+                $contextesTravailRepository->add($context);
+            }
+            $agremment = $briquesContexteMetiersRepository->find((int)$agrementid[$i]);
+            if ($agremment == null) {
+                $agremment = new BriquesContexteMetiers();
+                $agremment->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            }
+            $agremment->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $agremment->setBrqctxmetiertitre($agrementlist[$i]);
+            $agremment->setContexte($context);
+            $agremment->setFichesPostes($fichesPoste);
+            $briquesContexteMetiersRepository->add($agremment);
+        }
+        for ($i=0; $i < count($ficheslistid); $i++) { 
+            $context = $contextesTravailRepository->findBy(["ctx_trv_titre"=> "Conditions générales de travail"]);
+            if (!empty($context)) {
+                $context = $context[0];
+            } else {
+                $context = new ContextesTravail();
+                $context->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $context->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $context->setCtxTrvTitre("Conditions générales de travail");
+                $contextesTravailRepository->add($context);
+            }
+            $agremment = $briquesContexteMetiersRepository->find((int)$ficheslistid[$i]);
+            if ($agremment == null) {
+                $agremment = new BriquesContexteMetiers();
+                $agremment->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            }
+            $agremment->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $agremment->setBrqctxmetiertitre($ficheslist[$i]);
+            $agremment->setContexte($context);
+            $agremment->setFichesPostes($fichesPoste);
+            $briquesContexteMetiersRepository->add($agremment);
+        }
+        for ($i=0; $i < count($conditionlistid); $i++) { 
+            $context = $contextesTravailRepository->findBy(["ctx_trv_titre"=> "Fiches - Instructions - Scripts à respecter"]);
+            if (!empty($context)) {
+                $context = $context[0];
+            } else {
+                $context = new ContextesTravail();
+                $context->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $context->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+                $context->setCtxTrvTitre("Fiches - Instructions - Scripts à respecter");
+                $contextesTravailRepository->add($context);
+            }
+            $agremment = $briquesContexteMetiersRepository->find((int)$conditionlistid[$i]);
+            if ($agremment == null) {
+                $agremment = new BriquesContexteMetiers();
+                $agremment->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            }
+            $agremment->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+            $agremment->setBrqctxmetiertitre($conditionlist[$i]);
+            $agremment->setContexte($context);
+            $agremment->setFichesPostes($fichesPoste);
+            $briquesContexteMetiersRepository->add($agremment);
+        }
+        $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
+        $data["postelist"] = [];
+        foreach ($donnees as $post) {
+            $data["postelist"][] = $post->_getListPostData();
+        }
+        $allRomes = $romeRepository->findAll();
+        $data["rome"] = [];
+        foreach ($allRomes as $rome) {
+            $data["rome"][] = $rome->_toArray();
+        }
+        $competance = $fichesCompetencesRepository->findBy(["entreprise"=> NULL]);
+        $data["competance"] = [];
+        foreach ($competance as $comp) {
+            $data["competance"][] = $comp->_getListCompetance();
+        }
         return $this->json($data);
     }
 }
