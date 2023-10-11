@@ -405,12 +405,18 @@ class FichesPostes
                 "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion(),
                 "briquelist" => $this->getFichesPostesFicheCompetence()->getFicCompCompetences()
             ],
+            'convention' =>$this->getFichesPostesConvention(),
+            'definition' =>$this->getFichesPosteDefinition(),
+            'activite' =>$this->getFichesPostesActivite(),
+            'formation'=> $this->getFichesPostFormations(),
+            'briquecontextmetier' => [],
             'emplois'=> $this->getAppelation(),
             'validation'=> $this->getFichesPostesValidationAt(),
             'visa'=> $this->getFichesPostesVisaAt(),
             'rome' => [
                 "id"=>$this->getFichesPostesFicheRome()->getId(),
                 "codeRome"=> $this->getFichesPostesFicheRome()->getRomeCoderome(),
+                "code"=> $this->getFichesPostesFicheRome()->getRomeCoderome(),
                 "titre"=> $this->getFichesPostesFicheRome()->getRomeTitre()
             ],
             'fiches_postes_nplus1' => []
@@ -421,6 +427,17 @@ class FichesPostes
                 'id' => $this->getFichesPostesNplus1()->getId(),
                 'fiches_postes_titre' => $this->getFichesPostesNplus1()->getFichesPostesTitre()
             ];
+        }
+        $briquemetier = $this->getBriquesContexteMetiers();
+        if (!empty($briquemetier)) {
+            foreach ($briquemetier as $key) {
+                $data["briquecontextmetier"][] = [
+                    'id' => $key->getId(),
+                    'name' => $key->getBrqctxmetiertitre(),
+                    'contexttitre' => $key->getContexte()->getCtxTrvTitre(),
+                    'contextid' => $key->getContexte()->getid()
+                ];
+            }
         }
         return $data;
     }
