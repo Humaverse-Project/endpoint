@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\BriquesContexteMetiers;
 use App\Entity\ContextesTravail;
 use App\Entity\FichesPostes;
+use App\Repository\BriquesCompetencesRepository;
 use App\Repository\BriquesContexteRepository;
 use App\Repository\EmploiRepository;
 use App\Repository\FichesCompetencesRepository;
@@ -97,7 +98,7 @@ class FichesPostesController extends AbstractController
     /**
      * @Route("/detail", name="app_poste_rome_detail", methods={"POST"})
      */
-    public function detail( Request $request, RomeRepository $romeRepository, EmploiRepository $emploiRepository, BriquesContexteRepository $briquesContexteRepository, FichesCompetencesRepository $fichesCompetencesRepository ): JsonResponse
+    public function detail( Request $request, RomeRepository $romeRepository, EmploiRepository $emploiRepository, BriquesContexteRepository $briquesContexteRepository, FichesCompetencesRepository $fichesCompetencesRepository, BriquesCompetencesRepository $briquesCompetencesRepository ): JsonResponse
     {
         $rome = $romeRepository->findBy(["rome_coderome"=> $request->request->get("code")]);
         $data["rome"] = $rome[0]->_toArray();
@@ -109,6 +110,7 @@ class FichesPostesController extends AbstractController
                 $data["briquecompetance"][] = $datass[0];
             }
         }
+        $data["briquecompetancerome"] = $briquesCompetencesRepository->findBy(["rome"=> $rome[0]]);
         $data["briquecontexte"] = $briquesContexteRepository->findBy(["rome"=> $rome[0]]);
         return $this->json($data);
     }
