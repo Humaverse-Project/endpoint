@@ -33,6 +33,7 @@ class FichesPostesController extends AbstractController
         foreach ($donnees as $post) {
             $data["postelist"][] = $post->_getListPostData();
         }
+        
         $allRomes = $romeRepository->findAll();
         $data["rome"] = [];
         foreach ($allRomes as $rome) {
