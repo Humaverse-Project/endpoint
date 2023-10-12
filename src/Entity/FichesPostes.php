@@ -397,6 +397,7 @@ class FichesPostes
             'id' => $this->getId(),
             'titre' => $this->getFichesPostesTitre(),
             'createdAt'=> $this->getCreatedAt(),
+            'UpdatedAt'=> $this->getUpdatedAt(),
             'version'=> $this->getFichesPostesVersion(),
             'fichecompetance' => [
                 "id"=> $this->getFichesPostesFicheCompetence()->getId(),
