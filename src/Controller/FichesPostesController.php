@@ -62,11 +62,6 @@ class FichesPostesController extends AbstractController
         foreach ($allRomes as $rome) {
             $data["rome"][] = $rome->_toArray();
         }
-        $competance = $fichesCompetencesRepository->findBy(["entreprise"=> NULL]);
-        $data["competance"] = [];
-        foreach ($competance as $comp) {
-            $data["competance"][] = $comp->_getListCompetance();
-        }
         return $this->json($data);
     }
 
@@ -119,13 +114,13 @@ class FichesPostesController extends AbstractController
     /**
      * @Route("/newbo", name="app_fiches_postes_newbo", methods={"GET", "POST"})
      */
-    public function newbo(Request $request, FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, FichesCompetencesRepository $fichesCompetencesRepository, ContextesTravailRepository $contextesTravailRepository, BriquesContexteMetiersRepository $briquesContexteMetiersRepository, EmploiRepository $emploiRepository): Response
+    public function newbo(Request $request, FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, FichesCompetencesRepository $fichesCompetencesRepository, ContextesTravailRepository $contextesTravailRepository, BriquesContexteMetiersRepository $briquesContexteMetiersRepository, EmploiRepository $emploiRepository): JsonResponse
     {
-        $actuel = $fichesCompetencesRepository->find((int)$request->request->get("metierid"));
+        $actuel = $fichesPostesRepository->find((int)$request->request->get("metierid"));
         $appelation = $emploiRepository->find((int)$request->request->get("emploisid"));
         $version = 1.0;
         if ($actuel !== null) {
-            $version = (float)$actuel->getFicCompVersion()+0.1;
+            $version = (float)$actuel->getFichesPostesVersion()+0.1;
             $fichesPoste = $actuel;
         } else {
             $fichesPoste = new FichesPostes();
@@ -147,6 +142,10 @@ class FichesPostesController extends AbstractController
         $fichesPoste->setFichesPostesConvention($request->request->get("convention"));
         $fichesPoste->setFichesPostFormations($request->request->get("formation"));
         $fichesPostesRepository->add($fichesPoste);
+        $niveauexistlist = $briquesContexteMetiersRepository->findBy(["fichesPostes"=> $fichesPoste]);
+        foreach ($niveauexistlist as $key) {
+            $briquesContexteMetiersRepository->remove($key);
+        }
         $agrementlist = $request->request->all("agrement");
         $agrementid = $request->request->all("agrementid");
         $ficheslist = $request->request->all("ficheslist");
@@ -224,15 +223,23 @@ class FichesPostesController extends AbstractController
         foreach ($donnees as $post) {
             $data["postelist"][] = $post->_getListPostData();
         }
-        $allRomes = $romeRepository->findAll();
-        $data["rome"] = [];
-        foreach ($allRomes as $rome) {
-            $data["rome"][] = $rome->_toArray();
+        return $this->json($data);
+    }
+
+    /**
+     * @Route("/delete/{id}", name="app_fiches_competences_delete", methods={"POST"})
+     */
+    public function delete(FichesPostes $fichesPoste, BriquesContexteMetiersRepository $briquesContexteMetiersRepository, FichesPostesRepository $fichesPostesRepository): JsonResponse
+    {
+        $niveauexistlist = $briquesContexteMetiersRepository->findBy(["fichesPostes"=> $fichesPoste]);
+        foreach ($niveauexistlist as $key) {
+            $briquesContexteMetiersRepository->remove($key);
         }
-        $competance = $fichesCompetencesRepository->findBy(["entreprise"=> NULL]);
-        $data["competance"] = [];
-        foreach ($competance as $comp) {
-            $data["competance"][] = $comp->_getListCompetance();
+        $fichesPostesRepository->remove($fichesPoste);
+        $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
+        $data["postelist"] = [];
+        foreach ($donnees as $post) {
+            $data["postelist"][] = $post->_getListPostData();
         }
         return $this->json($data);
     }
