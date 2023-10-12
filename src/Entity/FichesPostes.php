@@ -400,11 +400,7 @@ class FichesPostes
             'UpdatedAt'=> $this->getUpdatedAt(),
             'version'=> $this->getFichesPostesVersion(),
             'fichecompetance' => [
-                "id"=> $this->getFichesPostesFicheCompetence()->getId(),
-                "titre" =>$this->getFichesPostesFicheCompetence()->getFicCompTitreEmploi(),
-                "niveau"=>$this->getFichesPostesFicheCompetence()->getBriquesCompetencesNiveaux(),
-                "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion(),
-                "briquelist" => $this->getFichesPostesFicheCompetence()->getFicCompCompetences()
+                
             ],
             'convention' =>$this->getFichesPostesConvention(),
             'definition' =>$this->getFichesPosteDefinition(),
@@ -427,6 +423,15 @@ class FichesPostes
             $data['fiches_postes_nplus1'] = [
                 'id' => $this->getFichesPostesNplus1()->getId(),
                 'fiches_postes_titre' => $this->getFichesPostesNplus1()->getFichesPostesTitre()
+            ];
+        }
+        if ($this->getFichesPostesFicheCompetence() !== null) {
+            $data["fichecompetance"] = [
+                "id"=> $this->getFichesPostesFicheCompetence()->getId(),
+                "titre" =>$this->getFichesPostesFicheCompetence()->getFicCompTitreEmploi(),
+                "niveau"=>$this->getFichesPostesFicheCompetence()->getBriquesCompetencesNiveaux(),
+                "version"=> $this->getFichesPostesFicheCompetence()->getFicCompVersion(),
+                "briquelist" => $this->getFichesPostesFicheCompetence()->getFicCompCompetences()
             ];
         }
         $briquemetier = $this->getBriquesContexteMetiers();
