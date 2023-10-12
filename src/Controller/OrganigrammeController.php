@@ -18,7 +18,7 @@ class OrganigrammeController extends AbstractController
     /**
      * @Route("/organigramme", name="app_organigramme", methods={"POST"})
      */
-    public function index(Request $request, EntrepriseRepository $entrepriseRepository, FichesPostesRepository $fichesPostesRepository, FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository, PersonneRepository $personneRepository): JsonResponse
+    public function index(Request $request, EntrepriseRepository $entrepriseRepository, FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, PersonneRepository $personneRepository): JsonResponse
     {
         $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
         $data["personnelist"] = [];
@@ -31,24 +31,10 @@ class OrganigrammeController extends AbstractController
         foreach ($listpost as $key) {
             $data["poste"][] = $key->_getOrganigrammeData();
         }
-        $listpost = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> null]);
-        $data["poste_generique"] = [];
-        foreach ($listpost as $key) {
-            $data["poste_generique"][] = $key->_getListPostData();
-        }
         $allRomes = $romeRepository->findAll();
         $data["rome"] = [];
         foreach ($allRomes as $rome) {
             $data["rome"][] = $rome->_toArray();
-        }
-        $competance = $fichesCompetencesRepository->findBy(["entreprise"=> NULL]);
-        $competance2 = $fichesCompetencesRepository->findBy(["entreprise"=> $entreprise]);
-        $data["competance"] = [];
-        foreach ($competance as $comp) {
-            $data["competance"][] = $comp->_getListCompetance();
-        }
-        foreach ($competance2 as $comp) {
-            $data["competance"][] = $comp->_getListCompetance();
         }
         return $this->json($data);
     }
@@ -65,14 +51,9 @@ class OrganigrammeController extends AbstractController
             $fichepostnplusun = $fichesPostesRepository->find((int)$request->request->get("parentNodeId"));
             $ficheposte->setFichesPostesNplus1($fichepostnplusun);
         }
-        $ficheposte->setConditionsGenerales($request->request->get("condition_general"));
-        $ficheposte->setFichesPostesAgrement($request->request->get("agrement"));
-        $ficheposte->setFichesPostesDefinition([$request->request->get("definition")]);
         $ficheposte->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $ficheposte->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $ficheposte->setFichesPostesFicheRome($rome);
-        $ficheposte->setFichesPostesActivite([$request->request->get("activite")]);
-        $ficheposte->setInstructions([$request->request->get("instruction")]);
         $ficheposte->setFichesPostesEntreprise($entreprise);
         $ficheposte->setFichesPostesFicheCompetence($competance);
         $ficheposte->setFichesPostesTitre($request->request->get("titre"));
@@ -88,6 +69,19 @@ class OrganigrammeController extends AbstractController
         }
         $data["stat"]= true;
         return $this->json($ficheposte->_getOrganigrammeData());
+    }
+    /**
+     * @Route("/organigramme/loadposte", name="app_organigramme_loadposte", methods={"POST"})
+     */
+    public function loadposte(Request $request, FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository): JsonResponse
+    {
+        $rome = $romeRepository->findBy(["rome_coderome"=> $request->request->get("code")]);
+        $listpost = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> null, "fiches_postes_fiche_rome"=> $rome[0]]);
+        $data["poste_generique"] = [];
+        foreach ($listpost as $key) {
+            $data["poste_generique"][] = $key->_getListPostData();
+        }
+        return $this->json($data);
     }
     /**
      * @Route("/organigramme/postupdate", name="app_organigramme_postupdate", methods={"POST"})
