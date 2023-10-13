@@ -130,6 +130,11 @@ class FichesPostes
      */
     private $appelation;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Organigramme::class, mappedBy="fiches_postes")
+     */
+    private $organigrammes;
+
     public function __construct()
     {
         $this->fiches_postes_liaison_hierarchique = new ArrayCollection();
@@ -138,6 +143,7 @@ class FichesPostes
         $this->formations = new ArrayCollection();
         $this->fiches_postes_parcours_professionnel = new ArrayCollection();
         $this->briquesContexteMetiers = new ArrayCollection();
+        $this->organigrammes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -546,6 +552,36 @@ class FichesPostes
     public function setAppelation(?Emploi $appelation): self
     {
         $this->appelation = $appelation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Organigramme>
+     */
+    public function getOrganigrammes(): Collection
+    {
+        return $this->organigrammes;
+    }
+
+    public function addOrganigramme(Organigramme $organigramme): self
+    {
+        if (!$this->organigrammes->contains($organigramme)) {
+            $this->organigrammes[] = $organigramme;
+            $organigramme->setFichesPostes($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganigramme(Organigramme $organigramme): self
+    {
+        if ($this->organigrammes->removeElement($organigramme)) {
+            // set the owning side to null (unless already changed)
+            if ($organigramme->getFichesPostes() === $this) {
+                $organigramme->setFichesPostes(null);
+            }
+        }
 
         return $this;
     }
