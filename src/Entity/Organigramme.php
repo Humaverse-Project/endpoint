@@ -72,7 +72,11 @@ class Organigramme
 
     public function getFichesPostes(): ?array
     {
-        return $this->fiches_postes->_getOrganigrammeData();
+        
+        if ($this->personnes) {
+            return $this->fiches_postes->_getOrganigrammeData();
+        }
+        return null;
     }
 
     public function setFichesPostes(?FichesPostes $fiches_postes): self
