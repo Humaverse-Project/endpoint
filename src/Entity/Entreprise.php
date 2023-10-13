@@ -109,12 +109,18 @@ class Entreprise
      */
     private $personnes;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Organigramme::class, mappedBy="entreprise", orphanRemoval=true)
+     */
+    private $organigrammes;
+
     public function __construct()
     {
         $this->comptes = new ArrayCollection();
         $this->experiences = new ArrayCollection();
         $this->fichesPostes = new ArrayCollection();
         $this->personnes = new ArrayCollection();
+        $this->organigrammes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -401,4 +407,34 @@ class Entreprise
 
     //     return $this;
     // }
+
+    /**
+     * @return Collection<int, Organigramme>
+     */
+    public function getOrganigrammes(): Collection
+    {
+        return $this->organigrammes;
+    }
+
+    public function addOrganigramme(Organigramme $organigramme): self
+    {
+        if (!$this->organigrammes->contains($organigramme)) {
+            $this->organigrammes[] = $organigramme;
+            $organigramme->setEntreprise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganigramme(Organigramme $organigramme): self
+    {
+        if ($this->organigrammes->removeElement($organigramme)) {
+            // set the owning side to null (unless already changed)
+            if ($organigramme->getEntreprise() === $this) {
+                $organigramme->setEntreprise(null);
+            }
+        }
+
+        return $this;
+    }
 }

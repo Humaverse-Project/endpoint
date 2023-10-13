@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\FichesPostes;
+use App\Entity\Organigramme;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +13,7 @@ use App\Repository\EntrepriseRepository;
 use App\Repository\FichesCompetencesRepository;
 use App\Repository\RomeRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\OrganigrammeRepository;
 
 class OrganigrammeController extends AbstractController
 {
@@ -36,39 +38,38 @@ class OrganigrammeController extends AbstractController
         foreach ($allRomes as $rome) {
             $data["rome"][] = $rome->_toArray();
         }
+        $data["organigramme"] = $entreprise->getOrganigrammes();
         return $this->json($data);
     }
     /**
      * @Route("/organigramme/enregistrement", name="app_organigramme_enregistrement", methods={"POST"})
      */
-    public function enregistrement(Request $request, EntrepriseRepository $entrepriseRepository, FichesPostesRepository $fichesPostesRepository, FichesCompetencesRepository $fichesCompetencesRepository, RomeRepository $romeRepository, PersonneRepository $personneRepository): JsonResponse
+    public function enregistrement(Request $request, EntrepriseRepository $entrepriseRepository, FichesPostesRepository $fichesPostesRepository, PersonneRepository $personneRepository, OrganigrammeRepository $organigrammeRepository): JsonResponse
     {
         $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
-        $competance = $fichesCompetencesRepository->find((int)$request->request->get("competanceid"));
-        $rome = $romeRepository->find((int)$request->request->get("metierid"));
-        $ficheposte = new FichesPostes();
+        $ficheposte = $fichesPostesRepository->find((int)$request->request->get("posteid"));
+        $organnigrame = new Organigramme();
         if ($request->request->get("parentNodeId") != "") {
-            $fichepostnplusun = $fichesPostesRepository->find((int)$request->request->get("parentNodeId"));
-            $ficheposte->setFichesPostesNplus1($fichepostnplusun);
+            $organi1 = $organigrammeRepository->find((int)$request->request->get("parentNodeId"));
+            $organnigrame->setOrganigrammeNplus1($organi1);
         }
-        $ficheposte->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-        $ficheposte->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-        $ficheposte->setFichesPostesFicheRome($rome);
-        $ficheposte->setFichesPostesEntreprise($entreprise);
-        $ficheposte->setFichesPostesFicheCompetence($competance);
-        $ficheposte->setFichesPostesTitre($request->request->get("titre"));
-        $date = date("Y-m-d");
-        $ficheposte->setFichesPostesVisaAt(new \DateTime($date));
-        $ficheposte->setFichesPostesValidationAt(new \DateTime($date));
-        $fichesPostesRepository->add($ficheposte);
+        $organnigrame->setOrgIntitulePoste($request->request->get("titre"));
+        $organnigrame->setFichesPostes($ficheposte);
+        $organnigrame->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+        $organnigrame->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+        $organnigrame->setEntreprise($entreprise);
+        if ($request->request->get("personneid") != "") {
+            $personne = $personneRepository->find((int)$request->request->get("personneid"));
+            $organnigrame->setPersonnes($personne);
+        }
+        $organigrammeRepository->add($organnigrame);
         if ($request->request->get("personneid") != NULL) {
             $personne = $personneRepository->find((int)$request->request->get("personneid"));
             $personne->setPersonnePoste($ficheposte);
             $personne->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
             $personneRepository->add($personne);
         }
-        $data["stat"]= true;
-        return $this->json($ficheposte->_getOrganigrammeData());
+        return $this->json($organnigrame);
     }
     /**
      * @Route("/organigramme/loadposte", name="app_organigramme_loadposte", methods={"POST"})
@@ -86,11 +87,11 @@ class OrganigrammeController extends AbstractController
     /**
      * @Route("/organigramme/postupdate", name="app_organigramme_postupdate", methods={"POST"})
      */
-    public function postupdate(Request $request, FichesPostesRepository $fichesPostesRepository): JsonResponse{
-        $ficheposte = $fichesPostesRepository->find((int)$request->request->get("nodeId"));
-        $fichepostnplusun = $fichesPostesRepository->find((int)$request->request->get("parentNodeId"));
-        $ficheposte->setFichesPostesNplus1($fichepostnplusun);
-        $fichesPostesRepository->add($ficheposte);
+    public function postupdate(Request $request, OrganigrammeRepository $organigrammeRepository): JsonResponse{
+        $ficheposte = $organigrammeRepository->find((int)$request->request->get("nodeId"));
+        $fichepostnplusun = $organigrammeRepository->find((int)$request->request->get("parentNodeId"));
+        $ficheposte->setOrganigrammeNplus1($fichepostnplusun);
+        $organigrammeRepository->add($ficheposte);
         $data["stat"]= true;
         return $this->json($data);
     }
