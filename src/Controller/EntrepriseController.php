@@ -37,6 +37,10 @@ class EntrepriseController extends AbstractController
         $entreprise->setCreatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $entreprise->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $entrepriseRepository->add($entreprise);
+        $validationemail = $compteRepository->findBy(["compte_nom_utilisateur"=> $request->request->get("emailrh")]);
+        if (!empty($validationemail)) {
+            return $this->json(["stat"=>false, "message"=> "Adresse email existe déjà"]);
+        }
         $compte = new Compte();
         $compte->setCompteEmail($request->request->get("emailrh"));
         $compte->setCompteTelephone($request->request->get("telephonerh"));
