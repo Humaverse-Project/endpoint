@@ -49,7 +49,8 @@ class Organigramme
     private $entreprise;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Organigramme::class)
+     * @ORM\ManyToOne(targetEntity=Organigramme::class, cascade={"remove"})
+     * @ORM\JoinColumn(name="organigramme_nplus_1_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $organigramme_nplus_1;
 

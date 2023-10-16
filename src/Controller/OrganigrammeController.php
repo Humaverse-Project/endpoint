@@ -20,23 +20,13 @@ class OrganigrammeController extends AbstractController
     /**
      * @Route("/organigramme", name="app_organigramme", methods={"POST"})
      */
-    public function index(Request $request, EntrepriseRepository $entrepriseRepository, FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, PersonneRepository $personneRepository): JsonResponse
+    public function index(Request $request, EntrepriseRepository $entrepriseRepository, FichesPostesRepository $fichesPostesRepository, PersonneRepository $personneRepository): JsonResponse
     {
         $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
         $data["personnelist"] = [];
         $personnelist = $personneRepository->findBy(["entreprise"=> $entreprise]);
         foreach ($personnelist as $key) {
             $data["personnelist"][] = $key->_getOrganigrammeData();
-        }
-        $listpost = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> $entreprise]);
-        $data["poste"] = [];
-        foreach ($listpost as $key) {
-            $data["poste"][] = $key->_getOrganigrammeData();
-        }
-        $allRomes = $romeRepository->findAll();
-        $data["rome"] = [];
-        foreach ($allRomes as $rome) {
-            $data["rome"][] = $rome->_toArray();
         }
         $data["organigramme"] = $entreprise->getOrganigrammes();
         return $this->json($data);
@@ -93,6 +83,34 @@ class OrganigrammeController extends AbstractController
         $ficheposte->setOrganigrammeNplus1($fichepostnplusun);
         $organigrammeRepository->add($ficheposte);
         $data["stat"]= true;
+        return $this->json($data);
+    }
+
+    /**
+     * @Route("/organigramme/filtreficheposte", name="app_organigramme_filtreficheposte", methods={"POST"})
+     */
+    public function filtreficheposte(Request $request, FichesPostesRepository $fichesPostesRepository): JsonResponse
+    {
+        $poste = $fichesPostesRepository->fitrefichesposte($request->request->get("input"), $request->request->get("entrepriseid"));
+        $data = [];
+        foreach ($poste as $key) {
+            $data[] = $key->_ogrannigrammeAjout();
+        }
+        return $this->json($data);
+    }
+
+    /**
+     * @Route("/organigramme/delete/{id}", name="app_fiches_competences_delete", methods={"POST"})
+     */
+    public function delete(Request $request, Organigramme $organigramme, OrganigrammeRepository $organigrammeRepository, EntrepriseRepository $entrepriseRepository): JsonResponse
+    {
+        // $niveauexistlist = $organigrammeRepository->findBy(["organigramme_nplus_1"=> $organigramme]);
+        // foreach ($niveauexistlist as $key) {
+        //     $organigrammeRepository->remove($key);
+        // }
+        $organigrammeRepository->remove($organigramme);
+        $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
+        $data["organigramme"] = $entreprise->getOrganigrammes();
         return $this->json($data);
     }
 }
