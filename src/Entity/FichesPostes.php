@@ -396,6 +396,19 @@ class FichesPostes
         return $data;
     }
 
+    public function _ogrannigrammeAjout() : array {
+        $data = [
+            'id' => $this->getId(),
+            'titre' => $this->getFichesPostesTitre(),
+            'entreprise'=> null
+        ];
+        if (!empty($this->getFichesPostesEntreprise())) {
+            $data["entreprise"] = [
+                "entrepirseid" => $this->getFichesPostesEntreprise()->getId()
+            ];
+        }
+        return $data;
+    }
     public function _getListPostData(): array
     {
         $data = [

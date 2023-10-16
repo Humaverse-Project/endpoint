@@ -47,22 +47,20 @@ class FichesPostesRepository extends ServiceEntityRepository
         }
     }
 
-    // /**
-    //  * @return FichesPostes[] Returns an array of FichesPostes objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function fitrefichesposte(string $titre, int $entreprise): ?array
     {
-        return $this->createQueryBuilder('f')
-            ->andWhere('f.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('f.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $query = $this->_em->createQuery('
+            SELECT f
+            FROM App\Entity\FichesPostes f
+            WHERE f.fiches_postes_titre LIKE :titre
+            AND (f.fiches_postes_entreprise IS NULL OR f.fiches_postes_entreprise = :entreprise)
+        ')
+        ->setParameter('titre', $titre . '%')
+        ->setParameter('entreprise', $entreprise);
+
+        $result = $query->getResult();
+        return $result;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?FichesPostes
