@@ -18,6 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\ContextesTravailRepository;
 use App\Repository\BriquesContexteMetiersRepository;
+use App\Repository\OrganigrammeRepository;
+
 /**
  * @Route("/fiches/postes")
  */
@@ -229,13 +231,18 @@ class FichesPostesController extends AbstractController
     /**
      * @Route("/delete/{id}", name="app_fiches_poste_delete", methods={"POST"})
      */
-    public function delete(FichesPostes $fichesPoste, BriquesContexteMetiersRepository $briquesContexteMetiersRepository, FichesPostesRepository $fichesPostesRepository): JsonResponse
+    public function delete(FichesPostes $fichesPoste, BriquesContexteMetiersRepository $briquesContexteMetiersRepository, FichesPostesRepository $fichesPostesRepository, OrganigrammeRepository $organigrammeRepository): JsonResponse
     {
         $niveauexistlist = $briquesContexteMetiersRepository->findBy(["fichesPostes"=> $fichesPoste]);
         foreach ($niveauexistlist as $key) {
             $briquesContexteMetiersRepository->remove($key);
         }
         $fichesPostesRepository->remove($fichesPoste);
+        $organigramme = $organigrammeRepository->findBy(["fiches_postes"=> $fichesPoste]);
+        foreach ($organigramme as $key) {
+            $key->setFichesPostes(null);
+            $organigrammeRepository->add($key);
+        }
         $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
         $data["postelist"] = [];
         foreach ($donnees as $post) {
