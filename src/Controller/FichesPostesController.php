@@ -237,12 +237,12 @@ class FichesPostesController extends AbstractController
         foreach ($niveauexistlist as $key) {
             $briquesContexteMetiersRepository->remove($key);
         }
-        $fichesPostesRepository->remove($fichesPoste);
         $organigramme = $organigrammeRepository->findBy(["fiches_postes"=> $fichesPoste]);
         foreach ($organigramme as $key) {
             $key->setFichesPostes(null);
             $organigrammeRepository->add($key);
         }
+        $fichesPostesRepository->remove($fichesPoste);
         $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
         $data["postelist"] = [];
         foreach ($donnees as $post) {
