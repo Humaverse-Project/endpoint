@@ -227,7 +227,7 @@ class FichesPostesController extends AbstractController
     }
 
     /**
-     * @Route("/delete/{id}", name="app_fiches_competences_delete", methods={"POST"})
+     * @Route("/delete/{id}", name="app_fiches_poste_delete", methods={"POST"})
      */
     public function delete(FichesPostes $fichesPoste, BriquesContexteMetiersRepository $briquesContexteMetiersRepository, FichesPostesRepository $fichesPostesRepository): JsonResponse
     {
