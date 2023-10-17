@@ -104,10 +104,6 @@ class OrganigrammeController extends AbstractController
      */
     public function delete(Request $request, Organigramme $organigramme, OrganigrammeRepository $organigrammeRepository, EntrepriseRepository $entrepriseRepository): JsonResponse
     {
-        // $niveauexistlist = $organigrammeRepository->findBy(["organigramme_nplus_1"=> $organigramme]);
-        // foreach ($niveauexistlist as $key) {
-        //     $organigrammeRepository->remove($key);
-        // }
         $organigrammeRepository->remove($organigramme);
         $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
         $data["organigramme"] = $entreprise->getOrganigrammes();
