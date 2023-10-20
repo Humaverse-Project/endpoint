@@ -74,7 +74,7 @@ class Organigramme
     public function getFichesPostes(): ?array
     {
         
-        if ($this->personnes) {
+        if ($this->fiches_postes) {
             return $this->fiches_postes->_getOrganigrammeData();
         }
         return null;

@@ -384,7 +384,13 @@ class FichesPostes
         $data = [
             'id' => $this->getId(),
             'fiches_postes_titre' => $this->getFichesPostesTitre(),
-            'fiches_postes_nplus1' => []
+            'fiches_postes_nplus1' => [],
+            'rome' => [
+                "id"=>$this->getFichesPostesFicheRome()->getId(),
+                "codeRome"=> $this->getFichesPostesFicheRome()->getRomeCoderome(),
+                "code"=> $this->getFichesPostesFicheRome()->getRomeCoderome(),
+                "titre"=> $this->getFichesPostesFicheRome()->getRomeTitre()
+            ],
         ];
 
         if (!empty($this->getFichesPostesNplus1())) {

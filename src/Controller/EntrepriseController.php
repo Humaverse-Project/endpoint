@@ -10,7 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use App\Services\ApiRequest\SiretInterface;
 /**
  * @Route("/entreprise")
  */
@@ -55,5 +55,12 @@ class EntrepriseController extends AbstractController
         $compte->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $compteRepository->add($compte);
         return $this->json(["stat"=>true]);
+    }
+
+    /**
+     * @Route("/sirettoken", name="app_entreprise_sirettoken", methods={"GET"})
+     */
+    public function synchrome(SiretInterface $siretInterface): JsonResponse{
+        return $this->json($siretInterface->authetification());
     }
 }
