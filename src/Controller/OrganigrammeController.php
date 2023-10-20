@@ -77,13 +77,13 @@ class OrganigrammeController extends AbstractController
     /**
      * @Route("/organigramme/postupdate", name="app_organigramme_postupdate", methods={"POST"})
      */
-    public function postupdate(Request $request, OrganigrammeRepository $organigrammeRepository): JsonResponse{
+    public function postupdate(Request $request, OrganigrammeRepository $organigrammeRepository, EntrepriseRepository $entrepriseRepository): JsonResponse{
         $ficheposte = $organigrammeRepository->find((int)$request->request->get("nodeId"));
         $fichepostnplusun = $organigrammeRepository->find((int)$request->request->get("parentNodeId"));
         $ficheposte->setOrganigrammeNplus1($fichepostnplusun);
         $organigrammeRepository->add($ficheposte);
-        $data["stat"]= true;
-        return $this->json($data);
+        $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
+        return $this->json($entreprise->getOrganigrammes());
     }
 
     /**
@@ -106,7 +106,6 @@ class OrganigrammeController extends AbstractController
     {
         $organigrammeRepository->remove($organigramme);
         $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
-        $data["organigramme"] = $entreprise->getOrganigrammes();
-        return $this->json($data);
+        return $this->json($entreprise->getOrganigrammes());
     }
 }
