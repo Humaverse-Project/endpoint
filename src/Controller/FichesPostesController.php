@@ -18,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\ContextesTravailRepository;
 use App\Repository\BriquesContexteMetiersRepository;
+use App\Repository\EntrepriseRepository;
 use App\Repository\OrganigrammeRepository;
 
 /**
@@ -52,7 +53,7 @@ class FichesPostesController extends AbstractController
     /**
      * @Route("/metier", name="app_fiches_postes_metier", methods={"GET"})
      */
-    public function metier(FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository, FichesCompetencesRepository $fichesCompetencesRepository): JsonResponse
+    public function metier(FichesPostesRepository $fichesPostesRepository, RomeRepository $romeRepository): JsonResponse
     {
         $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
         $data["postelist"] = [];
@@ -63,6 +64,25 @@ class FichesPostesController extends AbstractController
         $data["rome"] = [];
         foreach ($allRomes as $rome) {
             $data["rome"][] = $rome->_toArray();
+        }
+        return $this->json($data);
+    }
+
+    /**
+     * @Route("/metier/entreprise", name="app_fiches_postes_metier_entreprise", methods={"POST"})
+     */
+    public function metierEntreprise(Request $request, FichesPostesRepository $fichesPostesRepository, EntrepriseRepository $entrepriseRepository): JsonResponse
+    {
+        $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
+        $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> NULL]);
+        $data["postelistyuma"] = [];
+        foreach ($donnees as $post) {
+            $data["postelistyuma"][] = $post->_getListPostData();
+        }
+        $donnees = $fichesPostesRepository->findBy(["fiches_postes_entreprise"=> $entreprise]);
+        $data["postelist"] = [];
+        foreach ($donnees as $post) {
+            $data["postelist"][] = $post->_getListPostData();
         }
         return $this->json($data);
     }
