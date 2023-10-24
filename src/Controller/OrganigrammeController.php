@@ -87,6 +87,21 @@ class OrganigrammeController extends AbstractController
     }
 
     /**
+     * @Route("/organigramme/postupdateuser", name="app_organigramme_postupdate_personne", methods={"POST"})
+     */
+    public function postupdateuser(Request $request, OrganigrammeRepository $organigrammeRepository, PersonneRepository $personneRepository): JsonResponse{
+        $organigramme = $organigrammeRepository->find((int)$request->request->get("id"));
+        $personne = null;
+        if ((int)$request->request->get("personneid") != 0) {
+            $personne = $personneRepository->find((int)$request->request->get("personneid"));
+        }
+        $organigramme->setPersonnes($personne);
+        $organigramme->setOrgIntitulePoste($request->request->get("titre"));
+        $organigrammeRepository->add($organigramme);
+        return $this->json([]);
+    }
+
+    /**
      * @Route("/organigramme/filtreficheposte", name="app_organigramme_filtreficheposte", methods={"POST"})
      */
     public function filtreficheposte(Request $request, FichesPostesRepository $fichesPostesRepository): JsonResponse
