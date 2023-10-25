@@ -53,12 +53,12 @@ class OrganigrammeController extends AbstractController
             $organnigrame->setPersonnes($personne);
         }
         $organigrammeRepository->add($organnigrame);
-        if ($request->request->get("personneid") != NULL) {
-            $personne = $personneRepository->find((int)$request->request->get("personneid"));
-            $personne->setPersonnePoste($ficheposte);
-            $personne->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
-            $personneRepository->add($personne);
-        }
+        // if ($request->request->get("personneid") != NULL) {
+        //     $personne = $personneRepository->find((int)$request->request->get("personneid"));
+        //     $personne->setPersonnePoste($ficheposte);
+        //     $personne->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
+        //     $personneRepository->add($personne);
+        // }
         return $this->json($organnigrame);
     }
     /**
@@ -81,6 +81,7 @@ class OrganigrammeController extends AbstractController
         $ficheposte = $organigrammeRepository->find((int)$request->request->get("nodeId"));
         $fichepostnplusun = $organigrammeRepository->find((int)$request->request->get("parentNodeId"));
         $ficheposte->setOrganigrammeNplus1($fichepostnplusun);
+        $ficheposte->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $organigrammeRepository->add($ficheposte);
         $entreprise = $entrepriseRepository->find((int)$request->request->get("entrepriseid"));
         return $this->json($entreprise->getOrganigrammes());
@@ -97,6 +98,7 @@ class OrganigrammeController extends AbstractController
         }
         $organigramme->setPersonnes($personne);
         $organigramme->setOrgIntitulePoste($request->request->get("titre"));
+        $organigramme->setUpdatedAt(new \DateTimeImmutable('@'.strtotime('now')));
         $organigrammeRepository->add($organigramme);
         return $this->json([]);
     }
